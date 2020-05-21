@@ -1,0 +1,309 @@
+# Macro: show message box
+# %msgIn: register contains address message to show
+# %typeMsg: const integer
+#		0. Error icon
+#		1. Infor icon
+#		2. Warning icon
+#		3. Question icon
+.macro showMsgBox(%msgIn, %typeMsg)
+	pushStack($a0)
+	pushStack($a1)
+	
+	li	$v0, 55
+	move	$a0, %msgIn
+	add	$a1, $zero, %typeMsg
+	syscall
+	
+	popStack($a1)
+	popStack($a0)
+.end_macro
+
+# Macro: input message box
+# %msgIn: register contains address message to show
+# %msgOut: register contains address buffer
+# %maxNum: maximum number of characters to read
+# return in $v0: status value
+#		0. OK, buffer has data
+#		-2. Cancel
+#		-3. OK, no change to buffer
+#		-4. length iput > length buffer, assign terminate char (null) to end buffer
+.macro inputMsgBox(%msgIn, %msgOut, %maxNum)
+	pushStack($a0)
+	pushStack($a1)
+	pushStack($a2)
+		
+	li	$v0, 54
+	move	$a0, %msgIn
+	move	$a1, %msgOut
+	add	$a2, $zero, %maxNum
+	syscall
+	move	$v0, $a1
+
+	popStack($a2)
+	popStack($a1)
+	popStack($a0)
+.end_macro
+
+# Macro: set char at index in string
+# %regStr: register contains address of string
+# %index: position in string
+# $char: char 
+.macro setCharStr(%regStr, %index, %char)
+	pushStack($t0)
+
+	add	$t0, $zero, %char
+	add	%regStr, %regStr, %index
+	sb	$t0, (%regStr)
+	sub	%regStr, %regStr, %index
+	
+	popStack($t0)
+.end_macro
+
+# Macro: get char at index in string
+# %regStr: register contains address of string
+# %index: position in string
+# return in $v0: char at index in string
+.macro getCharStr(%regStr, %index)
+	add	%regStr, %regStr, %index
+	lb 	$v0, (%regStr)
+	sub	%regStr, %regStr, %index
+.end_macro
+
+# Macro: set int at index in string
+# %regArr: register contains address of arr
+# %index: position in string
+# $value: value 
+.macro setIntArr(%regArr, %index, %value)
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($t2)
+	
+	# init register with value
+	add	$t0, $zero, %value
+	
+	# Calculate index * 4
+	add	$t1, $zero, %index
+	li	$t2, 4
+	mult	$t1, $t2
+	mflo	$t1
+	
+	# Save 
+	add	%regArr, %regArr, $t1
+	sw	$t0, (%regArr)
+	sub	%regArr, %regArr, $t1
+	
+	popStack($t2)
+	popStack($t1)
+	popStack($t0)
+.end_macro
+
+# Macro: get int at index in array int
+# %regArr: register contains address of arr int
+# %index: position in arr
+# return in $v0: int at index in string
+.macro getIntArr(%regArr, %index)
+	pushStack($t0)
+	pushStack($t1)
+	
+	# Calculate index * 4
+	add	$t0, $zero, %index 
+	li	$t1, 4
+	mult	$t0, $t1
+	mflo	$t0
+	
+	# Load
+	add 	%regArr, %regArr, $t0
+	lb 	$v0, (%regArr)
+	sub	%regArr, %regArr, $t0
+	
+	popStack($t0)
+.end_macro
+
+# Macro: init string, all element in string = char
+# %regStr: register contains address of string to init
+# %char: value init
+# %len: length of string
+.macro initString(%regStr, %char, %len)
+	beq	%len, $zero, EndInitString
+	
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($s0)
+	
+	li	$t0, 0
+	add	$t1, $zero, %char
+	move	$s0, %regStr
+	
+	LoopInitString:
+		# Save char
+		sb	$t1, ($s0)
+		
+		# Increase count
+		addi	$t0, $t0, 1
+		
+		# Increase address 
+		addi	$s0, $s0, 1
+		
+		# Condition loop
+		blt	$t0, %len, LoopInitString
+	
+	popStack($s0)
+	popStack($t1)
+	popStack($t0)
+	
+	EndInitString:
+.end_macro
+
+
+# Macro: init string, all element in string = char
+# %regStr: register contains address of string to init
+# %char: value init
+# %len: length of string
+.macro initString(%regStr, %char, %len)
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($s0)
+	
+	add	$t0, $zero, %len
+	beq	$t0, $zero, EndInitString
+	
+	li	$t0, 0
+	add	$t1, $zero, %char
+	move	$s0, %regStr
+	
+	LoopInitString:
+		# Save char
+		sb	$t1, ($s0)
+		
+		# Increase count
+		addi	$t0, $t0, 1
+		
+		# Increase address 
+		addi	$s0, $s0, 1
+		
+		# Condition loop
+		blt	$t0, %len, LoopInitString
+	
+	popStack($s0)
+	popStack($t1)
+	popStack($t0)
+	
+	EndInitString:
+.end_macro
+
+# Macro: init arr integer, all element in arr = int
+# %regStr: register contains address of array integer
+# %value: value init
+# %size: size of string
+.macro initArrInt(%regArr, %value, %size)
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($s0)
+	
+	add	$t0, $zero, %size
+	beq	$t0, $zero, EndInitArrInt
+	
+	li	$t0, 0
+	add	$t1, $zero, %value
+	move	$s0, %regArr
+	
+	LoopInitArrInt:
+		# Save int
+		sw	$t1, ($s0)
+		
+		# Increase count
+		addi	$t0, $t0, 4
+		
+		# Increase address 
+		addi	$s0, $s0, 4
+		
+		# Condition loop
+		blt	$t0, %size, LoopInitArrInt
+	
+	popStack($s0)
+	popStack($t1)
+	popStack($t0)
+	
+	EndInitArrInt:
+.end_macro
+
+# =========== For test (show result in console) ===========
+
+# Macro: print char
+# %char: register contains char (or const char) need printing 
+.macro printChar(%char)
+	pushStack($a0)
+	
+	li	$v0, 11
+	add	$a0, $zero, %char
+	syscall
+	
+	popStack($a0)
+.end_macro
+
+# Macro: print const string
+# %string: const string need printing 
+.macro printConstString(%string)
+	.data
+		str:	.asciiz		%string
+	.text
+		pushStack($a0)
+	
+		li	$v0, 4
+		la	$a0, str
+		syscall
+	
+		popStack($a0)
+.end_macro
+
+# Macro: print string
+# %string: register contains address of string or arr char
+.macro printString(%string)
+	pushStack($a0)
+	
+	li	$v0, 4
+	move	$a0, %string
+	syscall
+	
+	popStack($a0)
+.end_macro
+
+# Macro: print int
+# %int: register contains integer (or const int) need printing
+# Note: warning if %int = $v0
+.macro printInt(%int)
+	pushStack($a0)
+	
+	li	$v0, 1
+	add	$a0, $zero, %int
+	syscall
+	
+	popStack($a0)
+.end_macro
+
+# Macro: push content register to stack
+# %regIn: register input
+.macro pushStack(%regIn)
+	addi	$sp, $sp, -4
+	sw	%regIn, ($sp)
+.end_macro
+
+# Macro: pop stack to register
+# regOut: register ouput
+.macro popStack(%regOut)
+	lw	%regOut, ($sp)
+	addi	$sp, $sp, 4
+.end_macro
+
+
+# test
+.data
+	tb1:	.asciiz		"rtj"
+	tb2:	.word		1:5
+.text
+	la	$a0, tb2
+	setIntArr($a0, 4, 7)
+	getIntArr($a0, 2)
+	move	$a0, $v0
+	
+	printInt($a0)
