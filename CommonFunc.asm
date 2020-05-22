@@ -423,7 +423,47 @@
 	popStack($t0)
 .end_macro
 
-
+# Macro: copy string from posStart to posEnd in src string
+# %dstStr: register contains address of destional string
+# %srcStr: register contains address of source string
+# %posStart: positon start copy
+# %num: number character copy
+.macro substr(%dstStr, %srcStr, %posStart, %num)
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($s0)
+	pushStack($s1)
+	
+	# init
+	move	$s0, %dstStr
+	move	$s1, %srcStr
+	add	$s1, $s1, %posStart
+	li	$t0, 0
+	
+	# loop copy
+	LoopSubstr:
+		# save char
+		lb	$t1, ($s1)
+		sb	$t1, ($s0)
+		
+		# inc number char copied
+		addi	$t0, $t0, 1
+		
+		# inc address
+		addi	$s0, $s0, 1
+		addi	$s1, $s1, 1
+		
+		# condition loop
+		bne	$t0, %num, LoopSubstr
+	
+	# terminate
+	sb	$zero, ($s0)	
+	
+	popStack($s1)
+	popStack($s0)
+	popStack($t1)
+	popStack($t0)
+.end_macro
 
 ######################################################
 # ================ Macro for box ====================#
@@ -609,7 +649,3 @@
 	move	%b, $t0
 	popStack($t0)
 .end_macro
-
-	
-
-

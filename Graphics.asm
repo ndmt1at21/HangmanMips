@@ -63,26 +63,3 @@
 	popStack($t1)
 	popStack($t0)
 .end_macro
-
-
-.macro drawVerticalLine(%x, %yStart, %yEnd, %color)
-	pushStack($t0)
-	pushStack($t1)
-	
-	li	$a0, 1
-	li	$a1, 7
-	
-	Loop:
-		drawPixel(1, $a1, 0xff0000)
-		addi	$a1, $a1, 1
-		blt	$a1, 20, Loop
-	
-	popStack($t1)
-	popStack($t0)
-.end_macro
-
-
-.data
-	a:	.word 	1
-.text
-	drawVerticalLine(1, 2, 10, 0xff0000)
