@@ -2,6 +2,43 @@
 # ================ Macro for int ====================#
 ######################################################
 
+# Macro: init arr integer, all element in arr = int
+# %regStr: register contains address of array integer
+# %value: value init
+# %size: size of string
+.macro initArrInt(%regArr, %value, %size)
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($s0)
+	
+	add	$t0, $zero, %size
+	beq	$t0, $zero, EndInitArrInt
+	
+	li	$t0, 0
+	add	$t1, $zero, %value
+	move	$s0, %regArr
+	
+	LoopInitArrInt:
+		# Save int
+		sw	$t1, ($s0)
+		
+		# Increase count
+		addi	$t0, $t0, 1
+		
+		# Increase address 
+		addi	$s0, $s0, 4
+		
+		# Condition loop
+		blt	$t0, %size, LoopInitArrInt
+	
+	EndInitArrInt:
+	
+	popStack($s0)
+	popStack($t1)
+	popStack($t0)
+.end_macro
+
+
 # Macro: set int at index in array
 # %regArr: register contains address of arr
 # %index: position in string
@@ -54,51 +91,64 @@
 .end_macro
 
 
-# Macro: init arr integer, all element in arr = int
-# %regStr: register contains address of array integer
-# %value: value init
-# %size: size of string
-.macro initArrInt(%regArr, %value, %size)
+
+# Macro: convert int to string
+# %regStr: register contains address buffer (string) hold output, last character = null
+# %int: register contains integer
+.macro toString(%regStr, %int)
 	pushStack($t0)
 	pushStack($t1)
+	pushStack($t2)
 	pushStack($s0)
 	
-	add	$t0, $zero, %size
-	beq	$t0, $zero, EndInitArrInt
+	# init
+	add	$t0, $zero, %int
+	move 	$s0, %regStr
+	li	$t1, 10
+	abs	$t0, $t0
 	
-	li	$t0, 0
-	add	$t1, $zero, %value
-	move	$s0, %regArr
+	LoopIntToString:
+		# div 10
+		div 	$t0, $t1
+			
+		# quotient
+		mflo	$t0
+			
+		# remainder
+		mfhi	$t2
+		
+		# save
+		addi	$t2, $t2, 48
+		sb	$t2, ($s0)
+			
+		# inc address
+		addi	$s0, $s0, 1
+		
+		# condition loop
+		bne	$t0, $zero, LoopIntToString
+			
+	# check negative
+	add	$t0, $zero, %int
+	blt 	$t0, $zero, AddMinusAfterString
+	sb	$zero, ($s0) # add null
+	j 	EndCheckNegative
 	
-	LoopInitArrInt:
-		# Save int
-		sw	$t1, ($s0)
-		
-		# Increase count
-		addi	$t0, $t0, 1
-		
-		# Increase address 
-		addi	$s0, $s0, 4
-		
-		# Condition loop
-		blt	$t0, %size, LoopInitArrInt
+	AddMinusAfterString:
+		li	$t0, '-'
+		sb	$t0, ($s0)
+		addi	$s0, $s0, 1
 	
-	EndInitArrInt:
+	EndCheckNegative:
+		
+	# reverse
+	strReverse(%regStr)
 	
 	popStack($s0)
+	popStack($t2)
 	popStack($t1)
 	popStack($t0)
 .end_macro
 
-
-# Macro: convert int to string
-# %regStr: register contains address buffer (string) hold output
-# %int: register contains integer
-.macro toString(%regStr, %int)
-	
-	LoopIntToString:
-	
-.end_macro
 
 ######################################################
 # ================ Macro for string =================#
@@ -107,7 +157,7 @@
 # Macro: init string, all element in string = char
 # %regStr: register contains address of string to init
 # %char: value init
-# %len: length of string
+# %len: length of string, one for terminate (null)
 .macro initString(%regStr, %char, %len)
 	pushStack($t0)
 	pushStack($t1)
@@ -132,6 +182,8 @@
 		
 		# Condition loop
 		blt	$t0, %len, LoopInitString
+
+	sb	$zero, ($s0)
 	
 	EndInitString:
 	
@@ -264,11 +316,15 @@
 	pushStack($s0)
 	pushStack($s1)
 	
-	# Set pointer begin, end
+	# init ptr begin, end
 	move	$s0, %regStr
 	move	$s1, %regStr
+	
+	# string len 
 	strlen(%regStr)
 	move	$t1, $v0
+	
+	# end address
 	add	$s1, $s1, $t1
 	addi	$s1, $s1, -1
 	
@@ -554,11 +610,6 @@
 	popStack($t0)
 .end_macro
 
-# test func
-.data
-	tb1:	.asciiz		"bc"
-	tb2:	.word		10
-.text
-	la	$a0, tb1
-	strReverse($a0)
-	printString($a0)
+	
+
+
