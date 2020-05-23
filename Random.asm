@@ -74,12 +74,12 @@ End:
          li $v0,10
           syscall
 end_marco:
-        popStack($t7)
-        popStack($t0)
-	popStack($t1)
-	popStack($t2)
-	popStack($a0)
-	popStack($a1)
-	popStack($a2)
 	popStack($a3)
+        popStack($a2)
+        popStack($a1)
+        popStack($a0)
+        popStack($t2)
+        popStack($t1)
+        popStack($t0)
+         popStack($t7)
 .end_macro
