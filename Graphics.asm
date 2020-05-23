@@ -8,7 +8,7 @@
 # Real width: 512 / 4 = 128
 # Real hight: 512 / 4 = 128
 # %color: RGB 
-
+# Note: use $t0 save y can make error
 .macro drawPixel(%x, %y, %color)
 	pushStack($t0)
 	pushStack($t1)
@@ -68,34 +68,3 @@
 	popStack($t1)
 	popStack($t0)
 .end_macro
-
-
-.macro drawVerticalLine(%x, %yStart, %yEnd, %color)
-	pushStack($t0)
-	pushStack($t1)
-	
-	# init
-	add	$t0, $zero, %yStart
-	
-	LoopDrawVerticalLine:
-		# draw pixel
-		printInt(%x)
-		printInt($t0)
-		printChar(' ')
-		drawPixel(%x, $t0, %color)
-		
-		# increase x
-		addi	$t0, $t0, 1
-		
-		# condition loop
-		blt	$t0, %yEnd, LoopDrawVerticalLine
-	
-	popStack($t1)
-	popStack($t0)
-.end_macro
-
-
-.data
-.text
-	drawVerticalLine(3, 4, 10, 0xff0000)
-	
