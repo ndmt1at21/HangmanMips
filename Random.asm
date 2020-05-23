@@ -2,7 +2,7 @@
 # Size = $t7
 # $a2 save selected random number
 # $t1 save size curent
-# number random return default $a0
+# number random return default $v0
 
 .data 
       array: .word 0:100 # int array[100].save selected random number.
@@ -53,12 +53,10 @@ sub $a2,$a2,$t2   # $a2 = $a2- 4*($t0)
 #increase index
 addi $t1,$t1, 1
 
-li $v0,1
-syscall
-
-sw $t1,sizecurent  # update size curent
+sw $t1,sizecurent
 #Check full
 beq $t1,$t7,End
+move $v0,$a0
 j end_marco
 End:
 li $v0,10
