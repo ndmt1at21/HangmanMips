@@ -87,6 +87,7 @@
 	lb 	$v0, (%regArr)
 	sub	%regArr, %regArr, $t0
 	
+	popStack($t1)
 	popStack($t0)
 .end_macro
 
