@@ -198,7 +198,6 @@
     	#CONTINUE
     	skipCircleLoop:     
 
-    	#RESTORE $RA
     	popStack($t9)
 	popStack($t8)
 	popStack($t7)
