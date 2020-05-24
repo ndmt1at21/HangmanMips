@@ -9,7 +9,7 @@
       array: .word 0:100 # int array[100].save selected random number.
       sizecurent:.word    # size of array selected random number
       
-.text main:
+
 .macro RanDom_int(%size)
 
         pushStack($t7)
@@ -45,7 +45,7 @@ RanDom:
 check:
           lw $t1,sizecurent
           beq $t0,$t1,ExitLoop
-          lw $a3,($a2)
+          lw $a3,0($a2)
           bne $a0,$a3,incre
           j RanDom
            # Neu khong trung thi tang cac gia tri & check tiep
@@ -74,12 +74,12 @@ End:
          li $v0,10
           syscall
 end_marco:
-	popStack($a3)
-        popStack($a2)
-        popStack($a1)
-        popStack($a0)
-        popStack($t2)
-        popStack($t1)
+        popStack($t7)
         popStack($t0)
-         popStack($t7)
+	popStack($t1)
+	popStack($t2)
+	popStack($a0)
+	popStack($a1)
+	popStack($a2)
+	popStack($a3)
 .end_macro
