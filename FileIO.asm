@@ -12,6 +12,9 @@
 	pushStack($t3)
 	pushStack($t4)
 	pushStack($s7)
+	pushStack($a0)	
+	pushStack($a1)	
+	pushStack($a2)
 	
         move $t4, %dstStr
 
@@ -68,6 +71,10 @@
 		li $t3, 0x00
 		sb $t3, ($t4)
 	
+	popStack($a2)	
+	popStack($a1)	
+	popStack($a0)
+	popStack($s7)		
 	popStack($t4)
 	popStack($t3)
 	popStack($t2)
@@ -87,6 +94,9 @@
 	pushStack($t2)
 	pushStack($t3)	
 	pushStack($t4)
+	pushStack($a0)	
+	pushStack($a1)	
+	pushStack($a2)	
 	
 	li $t0, 1
 	
@@ -139,7 +149,9 @@
 	move $a0, $s7      # file descriptor to close
 	syscall            # close file
 	
-	
+	popStack($a2)	
+	popStack($a1)	
+	popStack($a0)	
 	popStack($t4)	
 	popStack($t3)
 	popStack($t2)	
@@ -160,6 +172,9 @@
 	pushStack($t3)
 	pushStack($t4)
 	pushStack($t5)	
+	pushStack($a0)	
+	pushStack($a1)	
+	pushStack($a2)	
 	
 	li $t0, 1
 	
@@ -208,7 +223,10 @@
 			j loopApp
 		loopAppExit:
 	exit:
-	
+
+	popStack($a2)	
+	popStack($a1)	
+	popStack($a0)	
 	popStack($t5)	
 	popStack($t4)	
 	popStack($t3)
