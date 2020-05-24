@@ -68,6 +68,8 @@ ExitLoop:
          sw $t1,sizecurent
          #Check full
          beq $t1,$t7,End
+         li $v0,1
+         syscall
          move $v0,$a0
          j end_marco
 End:
@@ -83,3 +85,10 @@ end_marco:
 	popStack($a2)
 	popStack($a3)
 .end_macro
+
+RanDom_int(10)
+RanDom_int(10)
+RanDom_int(10)
+RanDom_int(10)
+RanDom_int(10)
+RanDom_int(10)

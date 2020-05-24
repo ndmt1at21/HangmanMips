@@ -1,4 +1,3 @@
-.include "CommonFunc.asm"
 .include "Random.asm"
 	
 #Get string in buffer when reach first delim store in dstStr
@@ -225,7 +224,7 @@
 	testWord: .space 10		# Word
 	storeSaveChar: .byte
 .text
-#	getline(testWord, '*')
+#	getline	(testWord, '*')
 #	li $v0, 4
 #	la $a0, testWord	
 #	syscall
