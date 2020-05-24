@@ -2,6 +2,7 @@
 #%array: label
 #size : size of arr
 #return : return $v0 :address of array
+
 .macro sort(%array,%size)
 pushStack($t0)
 pushStack($t1)
@@ -73,8 +74,3 @@ popStack($t0)
 #a:.word 32,45,54,32,54,21,24,65,100,54,32,67,10,91,,25,43,21,65,78,65,23
 #.text 
 #sort(a,21)
-
-
-
-
-
