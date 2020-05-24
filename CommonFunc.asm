@@ -518,6 +518,20 @@
 .end_macro
 
 
+# Macro: show confirm box
+# %msgIn: register contains address message to show
+# return in $v0: 0 Yes, 1 No, 2 Cancel 
+.macro showConfirmBox(%msgIn)
+	pushStack($a0)
+	
+	li	$v0, 50
+	move	$a0, %msgIn
+	syscall
+	move 	$v0, $a0
+	
+	popStack($a0)
+.end_macro
+
 
 #############################################################
 # =========== For print (show result in console) ===========#
