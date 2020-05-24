@@ -239,13 +239,13 @@
 	
 	DrawGallowsSC:
 	
-	beq $s0,1,DrawGallows_1
-	beq $s0,2,DrawGallows_2
-	beq $s0,3,DrawGallows_3
-	beq $s0,4,DrawGallows_4
-	beq $s0,5,DrawGallows_5
-	beq $s0,6,DrawGallows_6
-	beq $s0,7,DrawGallows_7
+	beq $t0,1,DrawGallows_1
+	beq $t0,2,DrawGallows_2
+	beq $t0,3,DrawGallows_3
+	beq $t0,4,DrawGallows_4
+	beq $t0,5,DrawGallows_5
+	beq $t0,6,DrawGallows_6
+	beq $t0,7,DrawGallows_7
 	
 	j EndDrawGallows
 	
