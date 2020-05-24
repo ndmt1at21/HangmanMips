@@ -7,7 +7,7 @@
 
 .data 
       array: .word 0:100 # int array[100].save selected random number.
-      sizecurent:.word    # size of array selected random number
+      sizecurent:.word 0:100    # size of array selected random number
       
 
 .macro RanDom_int(%size)
@@ -68,8 +68,6 @@ ExitLoop:
          sw $t1,sizecurent
          #Check full
          beq $t1,$t7,End
-         li $v0,1
-         syscall
          move $v0,$a0
          j end_marco
 End:
@@ -86,9 +84,4 @@ end_marco:
 	popStack($a3)
 .end_macro
 
-RanDom_int(10)
-RanDom_int(10)
-RanDom_int(10)
-RanDom_int(10)
-RanDom_int(10)
-RanDom_int(10)
+

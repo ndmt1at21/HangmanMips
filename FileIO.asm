@@ -218,22 +218,9 @@
 
 ############################################################
 .data
-	fileTest: .asciiz "C:/Users/Administrator/Desktop/hangman.txt"
+	fileTest: .asciiz "C:/Users/Administrator/Desktop/HangmanMips/dictionary.txt"
 	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
 	buffer: .space 2048
-	testWord: .space 10		# Word
+	testWord: .space 10	# Word
 	storeSaveChar: .byte
-.text
-#	getline	(testWord, '*')
-#	li $v0, 4
-#	la $a0, testWord	
-#	syscall
-	RanDom_int(25)
-	move $s0, $v0
-	li $v0, 1
-	move $a0, $s0
-	syscall
-# Exit program
-li $v0, 10
-syscall
 	
