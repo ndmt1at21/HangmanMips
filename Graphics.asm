@@ -134,16 +134,14 @@
     	circleLoop:
     	blt  $t3, $t4, skipCircleLoop    #If x < y, skip circleLoop
 
-    	#Draw Dot (x0 + x, y0 + y)
+    	#Draw Pixel (x0 + x, y0 + y)
     	addu $s0, $t0, $t3
     	addu $s1, $t1, $t4
-   
     	drawPixel($s0,$s1,%color)
 
-        #Draw Dot (x0 + y, y0 + x)
+        #Draw Pixel (x0 + y, y0 + x)
         addu $s0, $t0, $t4
         addu $s1, $t1, $t3
-       
        	drawPixel($s0,$s1,%color)            
 
         #Draw Pixel (x0 - y, y0 + x)
