@@ -47,7 +47,7 @@
 	popStack($t0)
 .end_macro
 
-
+#Ve duong thang ngang
 .macro drawHorizontalLine(%xStart, %y, %xEnd, %color)
 	pushStack($t0)
 	pushStack($t1)
@@ -69,6 +69,7 @@
 	popStack($t0)
 .end_macro
 
+#Ve duong thang doc
 .macro drawVerticalLine(%x, %yStart, %yEnd, %color)
 	pushStack($t0)
 	pushStack($t1)
@@ -94,6 +95,7 @@
 	drawVerticalLine(%x2, %y1, %y2, %color)
 .end_macro
 
+#Ve duong tron
 .macro drawCircle(%x,%y,%radius,%color)
 	
 	pushStack($s0)
@@ -137,42 +139,50 @@
     	#Draw Pixel (x0 + x, y0 + y)
     	addu $s0, $t0, $t3
     	addu $s1, $t1, $t4
-    	drawPixel($s0,$s1,%color)
+    	
+	drawPixel($s0,$s1,%color)
 
         #Draw Pixel (x0 + y, y0 + x)
         addu $s0, $t0, $t4
         addu $s1, $t1, $t3
-       	drawPixel($s0,$s1,%color)            
+       	
+	drawPixel($s0,$s1,%color)            
 
         #Draw Pixel (x0 - y, y0 + x)
         subu $s0, $t0, $t4
         addu $s1, $t1, $t3
-        drawPixel($s0,$s1,%color)           
+        
+	drawPixel($s0,$s1,%color)           
 
         #Draw Pixel (x0 - x, y0 + y)
         subu $s0, $t0, $t3
         addu $s1, $t1, $t4
+      
       	drawPixel($s0,$s1,%color)         
 
         #Draw Pixel (x0 - x, y0 - y)
         subu $s0, $t0, $t3
         subu $s1, $t1, $t4
-      	drawPixel($s0,$s1,%color)           
+      	
+	drawPixel($s0,$s1,%color)           
 
         #Draw Pixel (x0 - y, y0 - x)
         subu $s0, $t0, $t4
         subu $s1, $t1, $t3
+       
        	drawPixel($s0,$s1,%color)           
 
         #Draw Pixel (x0 + y, y0 - x)
         addu $s0, $t0, $t4
         subu $s1, $t1, $t3
-      	drawPixel($s0,$s1,%color)           #Jump to drawDot
+      
+      	drawPixel($s0,$s1,%color)          
 
         #Draw Pixel (x0 + x, y0 - y)
         addu $s0, $t0, $t3
         subu $s1, $t1, $t4
-       	drawPixel($s0,$s1,%color)           #Jump to drawDot
+       	
+	drawPixel($s0,$s1,%color)           
 
     	#If (err <= 0)
    	bgtz $t7, doElse
@@ -214,6 +224,7 @@
 	
 .end_macro
 
+
 .macro DrawGallows(%num)
 	pushStack($t0)
 	pushStack($s0)
@@ -227,6 +238,7 @@
 	add $t0,$zero,%num
 	
 	DrawGallowsSC:
+	
 	beq $s0,1,DrawGallows_1
 	beq $s0,2,DrawGallows_2
 	beq $s0,3,DrawGallows_3
@@ -234,69 +246,80 @@
 	beq $s0,5,DrawGallows_5
 	beq $s0,6,DrawGallows_6
 	beq $s0,7,DrawGallows_7
+	
 	j EndDrawGallows
 	
 	DrawGallows_1:
-		li $s0,10
-		li $s1,40
-		li $s2,120
-		li $t9, 0x00FFFF00
+		#Gallows
+		li $s0,10  #xStart
+		li $s1,40  #xEnd
+		li $s2,120 #y
+		li $t9, 0x00FFFF00 #color yellow
 		drawHorizontalLine($s0, $s2, $s1, $t9)	
 	
-		li $s0,20
-		li $s1,30
-		li $s2,20
-		li $s3,120
+		li $s0,20 	#x1
+		li $s1,30	#x2
+		li $s2,20	#y1
+		li $s3,120	#y2
 		drawRectangle($s0,$s2,$s1,$s3,$t9)
 		
-		li $t9, 0x00FF00FF
-		li $s0,30
-		li $s1,65
-		li $s2,20
+		li $t9, 0x00FF00FF #purple
+		li $s0,30	#xStart
+		li $s1,65	#xEnd
+		li $s2,20	#y
 		drawHorizontalLine($s0, $s2, $s1, $t9)
 		#Cape
-		li $s0,65
-		li $s1,20
-		li $s2,30
+		li $s0,65	#x
+		li $s1,20	#yStart
+		li $s2,30	#yEnd
 		drawVerticalLine($s0,$s1,$s2,$t9)
 		j EndDrawGallows
 	DrawGallows_2:
-	#Head
-		li $t9, 0x00FFFFFF
-		li $s0,65
-		li $s1,40
-		li $s2,10
+		#Head
+		li $t9, 0x00FFFFFF	#White
+		li $s0,65	#x
+		li $s1,40	#y
+		li $s2,10	#Radius
+		
 		drawCircle($s0,$s1,$s2,$t9)
+		
 		li $t9, 0x00FFFFFF
+		
 		#left eye
-		li $s3,60
-		li $s4,40
+		li $s3,60	#x
+		li $s4,40	#y
+		
 		drawPixel($s3,$s4,$t9)
+		
 		#right eye
-		li $s3,70
-		li $s4,40
+		li $s3,70	#x
+		li $s4,40	#y
+		
 		drawPixel($s3,$s4,$t9)
+		
 		#Mouth
-		li $s0,62
-		li $s1,68
-		li $s2,45
+		li $s0,62	#xStart
+		li $s1,68	#y
+		li $s2,45	#xEnd
+		
 		drawHorizontalLine($s0, $s2, $s1, $t9)
 		
 		j EndDrawGallows
 	DrawGallows_3:
 		#Body
 		li $t9, 0x00FFFFFF
-		li $s0,65
-		li $s1,50
-		li $s2,80
+		li $s0,65	#x
+		li $s1,50	#yStart
+		li $s2,80	#yEnd
+		
 		drawVerticalLine($s0,$s1,$s2,$t9)
 		
 		j EndDrawGallows
 	DrawGallows_4:
 		#rhand
-		li $s0,65
-		li $s1,55
-		li $s2,13
+		li $s0,65	#x
+		li $s1,55	#y
+		li $s2,13	#length
 		li $t9, 0x00FFFFFF
 		
 		drawlefttorightdiagonal($s0,$s1,$s2,$t9)
@@ -304,32 +327,37 @@
 		j EndDrawGallows
 	DrawGallows_5:
 		#lhand
-		li $s0,65
-		li $s1,55
-		li $s2,13
+		li $s0,65	#x
+		li $s1,55	#y
+		li $s2,13	#length
 		li $t9, 0x00FFFFFF
+		
 		drawrighttoleftdiagonal($s0,$s1,$s2,$t9)
 		
 		j EndDrawGallows
 	DrawGallows_6:
 		#rleg
-		li $s0,65
-		li $s1,80
-		li $s2,15
+		li $s0,65	#x
+		li $s1,80	#y
+		li $s2,15	#length
 		li $t9, 0x00FFFFFF
+		
 		drawlefttorightdiagonal($s0,$s1,$s2,$t9)
 		
 		j EndDrawGallows
 	DrawGallows_7:
 		#lleg
-		li $s0,65
-		li $s1,80
-		li $s2,15
+		li $s0,65	#x
+		li $s1,80	#y
+		li $s2,15	#length
 		li $t9, 0x00FFFFFF
+		
 		drawrighttoleftdiagonal($s0,$s1,$s2,$t9)
 		
 		j EndDrawGallows
+	
 	EndDrawGallows:
+	
 	popStack($t9)
 	popStack($s4)
 	popStack($s3)
@@ -338,6 +366,7 @@
 	popStack($s0)
 	popStack($t0)
 .end_macro
+#Ve duong cheo di xuong tu trai sang phai
 .macro drawlefttorightdiagonal(%x,%y,%length,%color)
 	pushStack($t0)
 	pushStack($t1)
@@ -369,6 +398,7 @@
 	
 .end_macro
 
+#Ve duong cheo di xuong tu phai sang trai
 .macro drawrighttoleftdiagonal(%x,%y,%length,%color)
 	pushStack($t0)
 	pushStack($t1)
