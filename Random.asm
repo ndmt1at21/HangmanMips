@@ -11,7 +11,6 @@
       sizecurent:.word 0:100    # size of array selected random number
 
 .macro RanDom_int(%size)
-
         pushStack($t7)
         pushStack($t0)
 	pushStack($t1)
@@ -74,12 +73,12 @@ End:
          li $v0,10
           syscall
 end_marco:
-        popStack($t7)
-        popStack($t0)
-	popStack($t1)
-	popStack($t2)
-	popStack($a0)
-	popStack($a1)
-	popStack($a2)
 	popStack($a3)
+	popStack($a2)
+	popStack($a1)
+	popStack($a0)
+	popStack($t2)
+	popStack($t1)
+	popStack($t0)
+        popStack($t7)	
 .end_macro
