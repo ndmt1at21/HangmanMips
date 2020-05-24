@@ -7,12 +7,8 @@
 
 .data 
       array: .word 0:100 # int array[100].save selected random number.
-<<<<<<< HEAD
+
       sizecurent:.word 0:100    # size of array selected random number
-=======
-      sizecurent:.word 0:100   # size of array selected random number
->>>>>>> 5cf8e1154456c7a2cd8aed9df6bc6ce1bb3c58f4
-      
 
 .macro RanDom_int(%size)
 
@@ -87,8 +83,3 @@ end_marco:
 	popStack($a2)
 	popStack($a3)
 .end_macro
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 5cf8e1154456c7a2cd8aed9df6bc6ce1bb3c58f4

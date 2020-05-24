@@ -13,6 +13,8 @@
 	pushStack($t4)
 	pushStack($s7)
 	
+        move $t4, %dstStr
+
 	#Open file
 	li $v0, 13
 	la $a0, fileTest
@@ -53,7 +55,7 @@
 		j loop
 		
 	getWord:
-		la $t4, %dstStr
+		
 		LoopGetWord:
 			lb $t3, ($t0)
 			beq $t3, %delim, getWordExit
@@ -221,6 +223,4 @@
 	fileTest: .asciiz "C:/Users/Administrator/Desktop/HangmanMips/dictionary.txt"
 	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
 	buffer: .space 2048
-	testWord: .space 10	# Word
 	storeSaveChar: .byte
-	
