@@ -1,5 +1,3 @@
-.include "CommonFunc.asm"
-
 # Width: 512 pixels
 # Heigth: 512 pixels
 # Unit width: 4 pixels

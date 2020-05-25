@@ -1,5 +1,3 @@
-.include "Random.asm"
-	
 #Get string in buffer when reach first delim store in dstStr
 # delim: end of string
 # dstStr: store substring
@@ -238,7 +236,7 @@
 
 ############################################################
 .data
-	fileTest: .asciiz "C:/Users/Administrator/Desktop/HangmanMips/dictionary.txt"
-	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
+	fileTest: .asciiz "D:/Assembly/HangmanMips/dictionary.txt"
+	fileOut: .asciiz "D:/Assembly/HangmanMips/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte
