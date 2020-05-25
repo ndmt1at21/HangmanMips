@@ -3,9 +3,10 @@
 #Get string in buffer when reach first delim store in dstStr
 # delim: end of string
 # dstStr: store substring
+# path: file path
 # return in %dstStr
 # load from buffer
-.macro getline(%dstStr, %delim)
+.macro getline(%dstStr, %delim, %path)
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($t2)
@@ -17,10 +18,10 @@
 	pushStack($a2)
 	
         move $t4, %dstStr
-
+	
 	#Open file
 	li $v0, 13
-	la $a0, fileTest
+	la $a0, %path
 	li $a1, 0
 	li $a2, 0
 	syscall
@@ -238,7 +239,6 @@
 
 ############################################################
 .data
-	fileTest: .asciiz "C:/Users/Administrator/Desktop/HangmanMips/dictionary.txt"
 	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte
