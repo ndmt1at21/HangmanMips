@@ -429,3 +429,35 @@
 	popStack($t0)
 	
 .end_macro
+
+.macro FillRectangle(%x,%y,%width,%height,%color)
+	pushStack($s0)
+	pushStack($s1)
+	pushStack($t0)
+	pushStack($t1)
+	
+	#Init
+	add $s0,$zero,%x #xStart
+	add $t1,$zero,%y #yStart
+	add $s1,$zero,%width 	
+	add $t0,$zero,%height 
+	
+	add $t0,$t0,$t1 #yEnd
+	add $s1,$s1,$s0 #xEnd
+	
+	#Loop
+	
+	fillloop:
+	drawHorizontalLine($s0,$t1,$s1,%color)
+	
+	#Increase y
+	addi $t1,$t1,1
+	
+	#Condition
+	blt $t1,$t0,fillloop 
+	
+	popStack($t1)
+	popStack($t0)
+	popStack($s1)
+	popStack($s0)
+.end_macro
