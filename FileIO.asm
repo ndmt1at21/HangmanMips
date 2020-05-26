@@ -1,3 +1,5 @@
+.include "CommonFunc.asm"
+
 #Get string in buffer when reach first delim store in dstStr
 # delim: end of string
 # dstStr: store substring
@@ -180,7 +182,7 @@
 	la $t1, %flag
 	
 	li $t2, 0x00
-	la $t3, %string
+	add $t3, $zero, %string
 	
 	beqz $t1, trunc
 	beq $t1, $t0, app
