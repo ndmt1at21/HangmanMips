@@ -1,13 +1,13 @@
 .include "CommonFunc.asm"
 
 #Get string in buffer when reach first delim store in dstStr
-# rdomInt: pos of the Word in dictionary
+# wordPos: pos of the Word in dictionary
 # delim: end of string
 # dstStr: store substring
 # path: file path
 # return in %dstStr
 # load from buffer
-.macro getline(%rdomInt, %dstStr, %delim, %path)
+.macro getline(%wordPos, %dstStr, %delim, %path)
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($t2)
@@ -42,11 +42,13 @@
 	syscall            # close file
 	
 	la $t0, buffer
-	move $t1, %rdomInt 	# store random int
+	move $t1, %wordPos 	# Word position
 	li $t2, 0	# Check whether we encounter random int or not
+	la $a0, 0x00
 	
 	loop:  
 		lb $t3, ($t0)		# Load first char in buffer to $t3
+		beq $t3, $a0, Error	# Can not find word
 		beqz $t1, getWord	# first word
 		beq $t3, %delim, count	# if we encounters delim while reading characters, count it to $t2
 		beq $t1, $t2, getWord	# if we find that word, go to getWord
@@ -70,6 +72,15 @@
 	getWordExit:
 		li $t3, 0x00
 		sb $t3, ($t4)
+		li $v0, 0
+		j end
+		
+	Error:
+		li $v0, -1
+		li $t3, 0x00
+		sb $t3, ($t4)
+	
+	end:
 	
 	popStack($a2)	
 	popStack($a1)	
