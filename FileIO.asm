@@ -1,12 +1,13 @@
 .include "CommonFunc.asm"
 
 #Get string in buffer when reach first delim store in dstStr
+# rdomInt: pos of the Word in dictionary
 # delim: end of string
 # dstStr: store substring
 # path: file path
 # return in %dstStr
 # load from buffer
-.macro getline(%dstStr, %delim, %path)
+.macro getline(%rdomInt, %dstStr, %delim, %path)
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($t2)
@@ -40,10 +41,8 @@
 	move $a0, $s7      # file descriptor to close
 	syscall            # close file
 	
-	RanDom_int(25)
-	
 	la $t0, buffer
-	move $t1, $v0	# store random int
+	move $t1, %rdomInt 	# store random int
 	li $t2, 0	# Check whether we encounter random int or not
 	
 	loop:  
@@ -247,3 +246,4 @@
 	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte
+
