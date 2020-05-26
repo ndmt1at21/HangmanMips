@@ -286,55 +286,28 @@
 	popStack($t0)
 .end_macro
 
-
-# Macro: set char at index in string
-# %regStr: register contains address of string
-# %index: position in string
-# $char: char 
-.macro setCharStr(%regStr, %index, %char)
-	pushStack($t0)
-
-	add	$t0, $zero, %char
-	add	%regStr, %regStr, %index
-	sb	$t0, (%regStr)
-	sub	%regStr, %regStr, %index
-	
-	popStack($t0)
-.end_macro
-
-
-# Macro: get char at index in string
-# %regStr: register contains address of string
-# %index: position in string
-# return in $v0: char at index in string
-.macro getCharStr(%regStr, %index)
-	add	%regStr, %regStr, %index
-	lb 	$v0, (%regStr)
-	sub	%regStr, %regStr, %index
-.end_macro
-
-
 # Macro: compare string
 # %regStr1: register contains address of string 1
 # %regStr2: register contains address of string 2
 # return in $v0: 0. not equal,    1. equal
+# Note: 
 .macro strcmp(%regStr1, %regStr2)
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($s0)
 	pushStack($s1)
 	
-	# Check length
-	strlen(%regStr1)
-	move	$t0, $v0
-	
-	strlen(%regStr2)
-	move	$t1, $v0
-	bne 	$t0, $t1, StrNotEqual
-	
 	# Init
 	move	$s0, %regStr1
 	move	$s1, %regStr2
+	
+	# Check length
+	strlen($s0)
+	move	$t0, $v0
+	
+	strlen($s1)
+	move	$t1, $v0
+	bne 	$t0, $t1, StrNotEqual
 
 	LoopStrCmp:
 		# Load
@@ -440,17 +413,17 @@
 	
 	# Init
 	add	$t0, $zero, %posStart
-	addi	$t0, $t0, -1
 	add	$t1, $zero, %char
-	
 	move	$s0, %regStr
-	addi	$s0, $s0, %posStart
-	lb	$t2, ($s0)
-
-	# Check 
-	li	$v0, -1
-	beq	$t2, $zero, EndStrFind
+	add	$s0, $s0, %posStart
 	
+	addi	$t0, $t0, -1
+	lb	$t2, ($s0)
+		
+	# Check null
+	li	$v0, -1
+
+	beq	$t2, $zero, EndStrFind
 	LoopStrFind:
 		# load char
 		lb	$t2, ($s0)
@@ -463,7 +436,7 @@
 		
 		# condition break
 		beq	$t2, $t1, CharFound
-		
+	
 		# condition loop
 		bne	$t2, $zero, LoopStrFind
 	
