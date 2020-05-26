@@ -182,7 +182,7 @@
 	la $t1, %flag
 	
 	li $t2, 0x00
-	add $t3, $zero, %string
+	la $t3, %string
 	
 	beqz $t1, trunc
 	beq $t1, $t0, app
@@ -225,6 +225,11 @@
 		loopAppExit:
 	exit:
 
+	# Close the file 
+	li   $v0, 16       # system call for close file
+	move $a0, $s7      # file descriptor to close
+	syscall            # close file
+	
 	popStack($a2)	
 	popStack($a1)	
 	popStack($a0)	
@@ -242,3 +247,4 @@
 	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte
+
