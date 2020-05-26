@@ -162,12 +162,13 @@
 .macro initString(%regStr, %char, %len)
 	pushStack($t0)
 	pushStack($t1)
+	pushStack($t2)
 	pushStack($s0)
 	
 	add	$t0, $zero, %len
 	beq	$t0, $zero, EndInitString
 	
-	li	$t0, 0
+	li	$t2, 0
 	add	$t1, $zero, %char
 	move	$s0, %regStr
 	
@@ -176,19 +177,20 @@
 		sb	$t1, ($s0)
 		
 		# Increase count
-		addi	$t0, $t0, 1
+		addi	$t2, $t2, 1
 		
 		# Increase address 
 		addi	$s0, $s0, 1
 		
 		# Condition loop
-		blt	$t0, %len, LoopInitString
+		blt	$t2, $t0, LoopInitString
 
 	sb	$zero, ($s0)
 	
 	EndInitString:
 	
 	popStack($s0)
+	popStack($t2)
 	popStack($t1)
 	popStack($t0)
 .end_macro
@@ -226,54 +228,86 @@
 .end_macro
 
 
-# Macro: set char at index in string
-# %regStr: register contains address of string
-# %index: position in string
-# $char: char 
-.macro setCharStr(%regStr, %index, %char)
-	pushStack($t0)
 
-	add	$t0, $zero, %char
-	add	%regStr, %regStr, %index
-	sb	$t0, (%regStr)
-	sub	%regStr, %regStr, %index
+# Macro: check str all alpha numberic
+# %regStr: register contains address of string
+# return in $v0: 1. all characters in the string are alphanumeric
+#		  0. otherwise	
+.macro isalnum(%regStr)
+	pushStack($t0)
+	pushStack($s0)
 	
+	# count loop
+	li	$t0, 0
+	move	$s0, %regStr
+	
+	LoopCheckAlnum:
+		# condition break
+		lb	$t0, ($s0)
+		
+		# check < '0'
+		blt	$t0, 48, alnumFalse
+		
+		# check > '9' & < 'A'
+		bgt	$t0, 57, CheckSmallerA
+		j CheckNext1
+		CheckSmallerA:
+			blt	$t0, 65, alnumFalse
+		
+		CheckNext1:
+		# check > 'Z' & < 'a'	
+		bgt	$t0, 90, CheckSmallera
+		j CheckNext2
+		CheckSmallera:
+			blt	$t0, 97, alnumFalse
+			
+		# check > 'z'
+		CheckNext2:	
+		bgt	$t0, 122, alnumFalse
+			
+		# inc address
+		addi	$s0, $s0, 1
+		lb	$t0, ($s0)
+		
+		# conditoon loop
+		bne	$t0, $zero, LoopCheckAlnum
+	
+	alnumTrue:
+		li	$v0, 1
+		j EndCheckAlnum
+	
+	alnumFalse:
+		li	$v0, 0
+		j EndCheckAlnum
+		
+	EndCheckAlnum:
+	
+	popStack($s0)
 	popStack($t0)
 .end_macro
-
-
-# Macro: get char at index in string
-# %regStr: register contains address of string
-# %index: position in string
-# return in $v0: char at index in string
-.macro getCharStr(%regStr, %index)
-	add	%regStr, %regStr, %index
-	lb 	$v0, (%regStr)
-	sub	%regStr, %regStr, %index
-.end_macro
-
 
 # Macro: compare string
 # %regStr1: register contains address of string 1
 # %regStr2: register contains address of string 2
 # return in $v0: 0. not equal,    1. equal
+# Note: 
 .macro strcmp(%regStr1, %regStr2)
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($s0)
 	pushStack($s1)
 	
-	# Check length
-	strlen(%regStr1)
-	move	$t0, $v0
-	
-	strlen(%regStr2)
-	move	$t1, $v0
-	bne 	$t0, $t1, StrNotEqual
-	
 	# Init
 	move	$s0, %regStr1
 	move	$s1, %regStr2
+	
+	# Check length
+	strlen($s0)
+	move	$t0, $v0
+	
+	strlen($s1)
+	move	$t1, $v0
+	bne 	$t0, $t1, StrNotEqual
 
 	LoopStrCmp:
 		# Load
@@ -379,17 +413,17 @@
 	
 	# Init
 	add	$t0, $zero, %posStart
-	addi	$t0, $t0, -1
 	add	$t1, $zero, %char
-	
 	move	$s0, %regStr
-	addi	$s0, $s0, %posStart
-	lb	$t2, ($s0)
-
-	# Check 
-	li	$v0, -1
-	beq	$t2, $zero, EndStrFind
+	add	$s0, $s0, %posStart
 	
+	addi	$t0, $t0, -1
+	lb	$t2, ($s0)
+		
+	# Check null
+	li	$v0, -1
+
+	beq	$t2, $zero, EndStrFind
 	LoopStrFind:
 		# load char
 		lb	$t2, ($s0)
@@ -402,7 +436,7 @@
 		
 		# condition break
 		beq	$t2, $t1, CharFound
-		
+	
 		# condition loop
 		bne	$t2, $zero, LoopStrFind
 	
@@ -500,21 +534,43 @@
 #		-2. Cancel
 #		-3. OK, no change to buffer
 #		-4. length iput > length buffer, assign terminate char (null) to end buffer
+# Note: %msgIn = $a1, %msgOut = $a0 can make error
 .macro inputMsgBox(%msgIn, %msgOut, %maxNum)
 	pushStack($a0)
 	pushStack($a1)
 	pushStack($a2)
-		
+	
 	li	$v0, 54
 	move	$a0, %msgIn
 	move	$a1, %msgOut
 	add	$a2, $zero, %maxNum
 	syscall
 	move	$v0, $a1
-
+		
 	popStack($a2)
 	popStack($a1)
 	popStack($a0)
+	
+	pushStack($s0)
+	pushStack($t0)
+	
+	move	$s0, %msgOut
+	LoopCheckNewLine:
+		# condition break
+		lb	$t0, ($s0)
+		beq	$t0, 10, EndCheckNewLine
+		
+		# add address
+		addi	$s0, $s0, 1
+		
+		bne	$t0, $zero, LoopCheckNewLine
+	
+	EndCheckNewLine:
+		sb	$zero, ($s0)
+		
+	popStack($t0)	
+	popStack($s0)
+	
 .end_macro
 
 

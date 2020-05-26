@@ -1,5 +1,3 @@
-.include "Random.asm"
-	
 #Get string in buffer when reach first delim store in dstStr
 # delim: end of string
 # dstStr: store substring
@@ -247,4 +245,3 @@
 	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte
-

@@ -3,8 +3,6 @@
 # $a2 save selected random number
 # $t1 save size curent
 # number random return default $v0
-.include "CommonFunc.asm"
-
 .data 
       array: .word 0:100 # int array[100].save selected random number.
 

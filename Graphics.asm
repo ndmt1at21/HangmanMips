@@ -1,5 +1,3 @@
-.include "CommonFunc.asm"
-
 # Width: 512 pixels
 # Heigth: 512 pixels
 # Unit width: 4 pixels
@@ -13,15 +11,11 @@
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($t2)
-	printInt(%y)
 	
 	# (y * realWidth + x) * 4 byte (1 pixel = 4 bytes)
 	add	$t0, $zero, %x
-	printInt($t0)
 	add	$t1, $zero, %y
-	printInt(%x)
-	printInt(%y)
-	printChar(' ')
+
 	# y * realWidth
 	li	$t2, 128
 	mult	$t1, $t2
