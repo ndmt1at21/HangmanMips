@@ -6,6 +6,10 @@
 # return in %dstStr
 # load from buffer
 .macro getline(%wordPos, %dstStr, %delim, %path)
+.data
+	file: .asciiz %path
+	buffer: .space 2048
+.text
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($t2)
@@ -17,10 +21,10 @@
 	pushStack($a2)
 	
         move $t4, %dstStr
-	
+        	
 	#Open file
 	li $v0, 13
-	la $a0, %path
+	la $a0, file
 	li $a1, 0
 	li $a2, 0
 	syscall
@@ -96,7 +100,12 @@
 # char: register or const char save to file
 # flag: 
 # 0: trunc, 1: app
-.macro saveChar(%char, %flag)
+# path: file path for output
+.macro saveChar(%char, %flag, %path)
+.data
+	fileOut: .asciiz %path
+	storeSaveChar: .byte
+.text
 	pushStack($s7)
 	pushStack($t0)
 	pushStack($t1)
@@ -173,7 +182,12 @@
 # string: register contains string save to file
 # flag: 
 # 0: trunc, 1: app
-.macro saveString(%string, %flag)
+# path: file path for output
+.macro saveString(%string, %flag, %path)
+.data 
+	fileOut: .asciiz %path
+	storeSaveChar: .byte
+.text
 	pushStack($s7)
 	pushStack($t0)
 	pushStack($t1)
@@ -227,7 +241,7 @@
 		loopApp:
 			lb $t4, ($t3)
 			beq $t4, $t2, loopAppExit
-			saveChar($t4, 1)
+			saveChar($t4, 1, %path)
 			add $t3, $t3, 1
 			j loopApp
 		loopAppExit:
@@ -252,6 +266,5 @@
 
 ############################################################
 .data
-	fileOut: .asciiz "D:/Assembly/HangmanMips/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte

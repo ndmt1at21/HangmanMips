@@ -422,7 +422,6 @@
 		
 	# Check null
 	li	$v0, -1
-
 	beq	$t2, $zero, EndStrFind
 	LoopStrFind:
 		# load char
@@ -496,6 +495,98 @@
 	
 	popStack($s1)
 	popStack($s0)
+	popStack($t1)
+	popStack($t0)
+.end_macro
+
+# Macro: get string from string
+# Note: $s0 = % srcString can make error
+# reutrn in $v0: -1 if can find delim or num > num delim in string
+.macro getstr(%dstString, %srcString, %delim, %num)
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($t2)
+	pushStack($s0)
+	pushStack($s1)
+	pushStack($s2)
+	pushStack($s3)
+	
+	move	$s0, %dstString
+	move	$s1, %srcString
+	add	$s2, $zero, %delim
+	add	$s3, $zero %num
+	
+	li	$t0, -1 # prevPos
+	li	$t1, 0 # currentPos
+	li	$t2, 0 # count
+	LoopGetStr:
+		addi	$t0, $t0, 1
+		strFind($s1, $t0, $s2)
+		move	$t1, $v0
+		
+		beq	$t1, -1, NotFoundDelim
+		beq	$t2, $s3, FoundDelim
+		
+		move	$t0, $t1
+		addi	$t2, $t2, 1
+		
+		beq	$zero, $zero, LoopGetStr
+		
+	NotFoundDelim:
+		strlen($s1)
+		move	$t1, $v0
+		li	$v0, -1
+		j 	EndLoopGetStr
+		
+	FoundDelim:
+		li	$v0, 1	
+		
+	EndLoopGetStr:
+		sub	$t2, $t1, $t0
+		substr($s0, $s1, $t0, $t2)
+	
+	popStack($s2)
+	popStack($s1)
+	popStack($s0)
+	popStack($t2)
+	popStack($t1)
+	popStack($t0)
+.end_macro
+
+
+# Macro: convert str int to int
+# intStr: register contains string 
+# return in $v0: result 
+# Note: use $t0 can make error
+.macro toInt(%intStr)
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($t2)
+	pushStack($s0)
+	
+	move	$s0, %intStr
+	li	$t0, 0
+	li	$t1, 10
+	li	$t2, 0
+	
+	LoopConvertStrToInt:
+		lb	$t0, ($s0)
+		beq	$t0, $zero, EndLoopConvertStrToInt
+		
+		subi	$t0, $t0, 48
+		mult	$t2, $t1
+		mflo	$t2
+		add	$t2, $t2, $t0 
+		
+		addi	$s0, $s0, 1
+		beq	$zero, $zero, LoopConvertStrToInt
+	
+	EndLoopConvertStrToInt:
+	
+	move	$v0, $t2
+	
+	popStack($s0)
+	popStack($t2)
 	popStack($t1)
 	popStack($t0)
 .end_macro
