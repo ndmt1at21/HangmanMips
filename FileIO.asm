@@ -7,7 +7,6 @@
 # load from buffer
 .macro getline(%wordPos, %dstStr, %delim, %path)
 .data
-	file: .asciiz %path
 	buffer: .space 2048
 .text
 	pushStack($t0)
@@ -24,7 +23,7 @@
         	
 	#Open file
 	li $v0, 13
-	la $a0, file
+	la $a0, %path
 	li $a1, 0
 	li $a2, 0
 	syscall
@@ -103,7 +102,6 @@
 # path: file path for output
 .macro saveChar(%char, %flag, %path)
 .data
-	fileOut: .asciiz %path
 	storeSaveChar: .byte
 .text
 	pushStack($s7)
@@ -130,7 +128,7 @@
 	trunc:
 		#Open file
 		li $v0, 13
-		la $a0, fileOut
+		la $a0, %path
 		li $a1, 1
 		li $a2, 0
 		syscall
@@ -148,7 +146,7 @@
 	app:
 		#Open file
 		li $v0, 13
-		la $a0, fileOut
+		la $a0, %path
 		li $a1, 9
 		li $a2, 0
 		syscall
@@ -185,7 +183,6 @@
 # path: file path for output
 .macro saveString(%string, %flag, %path)
 .data 
-	fileOut: .asciiz %path
 	storeSaveChar: .byte
 .text
 	pushStack($s7)
@@ -214,7 +211,7 @@
 		
 		#Open file
 		li $v0, 13
-		la $a0, fileOut
+		la $a0, %path
 		li $a1, 1
 		li $a2, 0
 		syscall
