@@ -1,0 +1,19 @@
+.include "CommonFunc.asm"
+.include "FileIO.asm"
+.include "Random.asm"
+
+.data
+	str:	.space		11
+	ch:	.byte		'z'
+	fileIn:	.asciiz		"D:/Assembly/HangmanMips/dictionary.txt"
+.text
+	la	$a0, str
+	li	$t0, 0
+	
+	Loop:
+		addi	$t0, $t0, 1
+		getline($a0, '*', fileIn)
+		printString($a0)
+		printChar('\n')
+		blt	$t0, 26, Loop
+	
