@@ -8,6 +8,9 @@
 # return in %dstStr
 # load from buffer
 .macro getline(%wordPos, %dstStr, %delim, %path)
+.data
+	file: .asciiz %path
+.text
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($t2)
@@ -19,10 +22,10 @@
 	pushStack($a2)
 	
         move $t4, %dstStr
-	
+        	
 	#Open file
 	li $v0, 13
-	la $a0, %path
+	la $a0, file
 	li $a1, 0
 	li $a2, 0
 	syscall
@@ -257,4 +260,3 @@
 	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte
-
