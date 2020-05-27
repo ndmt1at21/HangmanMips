@@ -10,6 +10,7 @@
 .macro getline(%wordPos, %dstStr, %delim, %path)
 .data
 	file: .asciiz %path
+	buffer: .space 2048
 .text
 	pushStack($t0)
 	pushStack($t1)
@@ -101,7 +102,12 @@
 # char: register or const char save to file
 # flag: 
 # 0: trunc, 1: app
-.macro saveChar(%char, %flag)
+# path: file path for output
+.macro saveChar(%char, %flag, %path)
+.data
+	fileOut: .asciiz %path
+	storeSaveChar: .byte
+.text
 	pushStack($s7)
 	pushStack($t0)
 	pushStack($t1)
@@ -178,7 +184,12 @@
 # string: register contains string save to file
 # flag: 
 # 0: trunc, 1: app
-.macro saveString(%string, %flag)
+# path: file path for output
+.macro saveString(%string, %flag, %path)
+.data 
+	fileOut: .asciiz %path
+	storeSaveChar: .byte
+.text
 	pushStack($s7)
 	pushStack($t0)
 	pushStack($t1)
@@ -232,7 +243,7 @@
 		loopApp:
 			lb $t4, ($t3)
 			beq $t4, $t2, loopAppExit
-			saveChar($t4, 1)
+			saveChar($t4, 1, %path)
 			add $t3, $t3, 1
 			j loopApp
 		loopAppExit:
@@ -256,8 +267,3 @@
 .end_macro
 
 ############################################################
-.data
-	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
-	buffer: .space 2048
-	storeSaveChar: .byte
-
