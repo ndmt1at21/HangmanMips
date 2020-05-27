@@ -223,6 +223,11 @@
 		loopAppExit:
 	exit:
 
+	# Close the file 
+	li   $v0, 16       # system call for close file
+	move $a0, $s7      # file descriptor to close
+	syscall            # close file
+	
 	popStack($a2)	
 	popStack($a1)	
 	popStack($a0)	
@@ -237,11 +242,6 @@
 
 ############################################################
 .data
-<<<<<<< HEAD
-	fileTest: .asciiz "D:/Assembly/HangmanMips/dictionary.txt"
 	fileOut: .asciiz "D:/Assembly/HangmanMips/nguoichoi.txt"
-=======
-	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
->>>>>>> origin
 	buffer: .space 2048
 	storeSaveChar: .byte
