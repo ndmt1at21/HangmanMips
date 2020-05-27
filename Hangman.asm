@@ -3,6 +3,7 @@
 .include "Graphics.asm"
 .include "Random.asm"
 
+# max length hidden word: 10
 .data
 	helloGame:		.asciiz 	"Xin chao ban den voi game Hangman"
 	askPlayerName:		.asciiz		"Vui long nhap ten nguoi choi"
@@ -16,11 +17,15 @@
 	hiddenWord:		.space		11
 	guessWord:		.space		11
 	guessChar:		.space		1
-	tempStr:		.space		5
+	tempStr:		.space		21
 	playerName:		.space		21
 	playerScore:		.word		0
+	playerWord:		.byte		0
 	playerStatus:		.byte		0
-	resetGame:		.byte		0
+	
+	allPlayerName:		.space		512	# 20 bytes / 1 player -> ~ 25 player
+	allPlayerScore:		.space		112	# 25 player * 4 bytes
+	allPlayerWord:		.space		28	# 25 plyer * 1 bytes
 	dictionary:		.asciiz 	"D:/Assembly/HangmanMips/dictionary.txt"
 	dataPlayer:		.asciiz		"D:/Assembly/HangmanMips/nguoichoi.txt"
 .text
@@ -50,7 +55,6 @@ LoopHangmanGame:
 	initString($a0, '@', $t0)
 			
 	LoopGuessOneWord:
-	
 		# show guess word
 		la	$a0, guessWord
 		showMsgBox($a0, 1)
@@ -88,18 +92,44 @@ _CheckGuessWord:
 	j 	GuessWordWrong
 		
 	GuessWordRight:
+		# noti right word
+		la	$a0, notiRightWord
+		showMsgBox($a0, 1)
+		
+		# reset status
 		sb	$zero, playerStatus
-		lw	$a0, playerScore
 		
 		# inc score
+		lw	$a0, playerScore
 		strlen($a1)
 		add	$a0, $a0, $v0
+		sw	$a0, playerScore
+		
+		# inc num right word
+		lb	$a0, playerWord
+		addi	$a0, $a0, 1
+		sb	$a0, playerWord
 		
 		# continue game
 		j LoopHangmanGame
 			
 	GuessWordWrong:
 		# save infor player 
+		la	$a0, playerName
+		saveString($a0, 1)
+		saveChar('-', 1)
+		
+		lw	$a0, playerScore
+		la	$a1, tempStr
+		toString($a1, $a0)
+		saveString($a1, 1)
+		saveChar('-', 1)
+		
+		lb	$a0, playerWord
+		toString($a1, $a0)
+		saveString($a1, 1)
+		saveChar('*', 1)
+		
 		
 		# status player = 7
 		li	$a0, 7
@@ -217,3 +247,44 @@ _DrawPlayerStatus:
 	jr	$ra
 	
 _Top10Player:
+	# load data
+	
+# Para: $t3, $t4
+# $t2: register contains pos name1 (not need x20 bytes)
+# $t3: register contains pos name2 
+_swapNamePlayer:
+	pushStack($t0)
+	pushStack($t1)
+	pushStack($t2)
+	pushStack($s0)
+	pushStack($s1)
+	
+	la	$s0, allPlayerName
+	la	$s1, allPlayerName
+	add	$s0, $s0, $t3
+	add	$s1, $s1, $t3
+	
+	li	$t0, 0
+	LoopSwapNamePlayer:
+		# addi count
+		addi	$t0, $t0, 1
+		
+		# load data
+		lb	$t1, ($s0)
+		lb	$t2, ($s1)
+		sb	$t2, ($s0)
+		sb	$t1, ($s1)
+		
+		# inc address
+		addi	$s0, $s0, 1
+		addi	$s1, $s1, 1
+		
+		# conditon loop
+		blt	$t0, 20, LoopSwapNamePlayer
+	
+	popStack($s1)
+	popStack($s0)
+	popStack($t2)
+	popStack($t1)
+	popStack($t0)
+	

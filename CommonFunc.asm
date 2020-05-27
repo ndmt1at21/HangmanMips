@@ -713,6 +713,7 @@
 # Macro: swap content two register
 # %a: register 1
 # %b: register 2
+# Note: %b = $t0 can make error
 .macro swap(%a, %b)
 	pushStack($t0)
 	move	$t0, %a
