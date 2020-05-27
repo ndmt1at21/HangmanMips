@@ -49,7 +49,7 @@ LoopHangmanGame:
 	la	$a0, hiddenWord
 	RanDom_int(25)
 	move	$s0, $v0
-	getline($s0, $a0, '*', "D:/Assembly/HangmanMips/dictionary.txt")
+	getline($s0, $a0, '*', dictionary)
 	printString($a0)
 	
 	# init guess word
@@ -129,19 +129,19 @@ _CheckGuessWord:
 	GuessWordWrong:
 		# save infor player 
 		la	$a0, playerName
-		saveString($a0, 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
-		saveChar('-', 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
+		saveString($a0, 1, dataPlayer)
+		saveChar('-', 1, dataPlayer)
 		
 		lw	$a0, playerScore
 		la	$a1, tempStr
 		toString($a1, $a0)
-		saveString($a1, 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
-		saveChar('-', 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
+		saveString($a1, 1, dataPlayer)
+		saveChar('-', 1, dataPlayer)
 		
 		lb	$a0, playerWord
 		toString($a1, $a0)
-		saveString($a1, 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
-		saveChar('*', 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
+		saveString($a1, 1, dataPlayer)
+		saveChar('*', 1, dataPlayer)
 		
 		
 		# status player = 7
@@ -284,43 +284,4 @@ _DrawPlayerStatus:
 	jr	$ra
 	
 _Top10Player:
-	# load data
-	li	$t0, 0
-	la	$a0, tempStr
-	la	$a1, allPlayerNameBuff
-	la	$a2, allPlayerScore
-	la	$a3, allPlayerWord
-	la	$s0, allPlayerNamePtr
 	
-	# read from file
-	LoopReadDataPlayer:
-		# get data 1 player
-		getline($s0, $t4, '*', "D:/Assembly/HangmanMips/nguoichoi.txt")
-		beq	$v0, -1, EndLoopReadDataPlayer
-		
-		# get name player
-		getstr($a1, $a0, '-', 0)
-		move	$s0, $a1
-		addi	$a1, $a1, 21
-		addi	$s0, $s0, 1
-		
-		# get score player
-		getstr($a1, $a0, '-', 1)
-		toInt($a1)
-		sw	$v0, ($s2)
-		addi	$s2, $s2, 1
-		
-		# get num word player
-		getstr($a1, $a0, '-', 2)
-		toInt($a1)
-		sw	$v0, ($s3)
-		addi	$s3, $s3, 1
-		
-		# inc index word
-		addi	$t0, $t0, 1
-		
-		# condition loop
-		beq	$zero, $zero, LoopReadDataPlayer
-		
-	EndLoopReadDataPlayer:
-		sw	$t0, numPlayer

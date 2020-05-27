@@ -3,10 +3,10 @@
 .include "Random.asm"
 
 .data
-	s:	.space		10
-	str:	.asciiz		"abc*xyz*gth"
+	dataPlayer:		.asciiz		"D:/Assembly/HangmanMips/nguoichoi.txt"
+	str:	.asciiz		"ab"
+	str1:	.space		100
 .text
-	la	$a0, s
-	la	$a1, str
-	getStr($a0, $a1, '*', -1)
-	printString($a0)
+	la	$a2, str
+	saveString($a2, 0, dataPlayer)
+	saveChar('-', 0, dataPlayer)
