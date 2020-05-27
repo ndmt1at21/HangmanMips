@@ -1,3 +1,5 @@
+.include "CommonFunc.asm"
+
 #Get string in buffer when reach first delim store in dstStr
 # wordPos: pos of the Word in dictionary
 # delim: end of string
@@ -260,8 +262,3 @@
 	popStack($t0)
 	popStack($s7)
 .end_macro
-
-############################################################
-.data
-	buffer: .space 2048
-	storeSaveChar: .byte
