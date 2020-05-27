@@ -254,13 +254,6 @@
 
 ############################################################
 .data
-<<<<<<< HEAD
-	fileOut: .asciiz "D:/Assembly/HangmanMips/nguoichoi.txt"
-	buffer: .space 2048
-	storeSaveChar: .byte
-=======
 	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte
-
->>>>>>> 0cf26ba7a7d4ca5e7d2ddd3fa1172cd116ca0a64
