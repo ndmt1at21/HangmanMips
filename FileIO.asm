@@ -1,5 +1,3 @@
-.include "CommonFunc.asm"
-
 #Get string in buffer when reach first delim store in dstStr
 # wordPos: pos of the Word in dictionary
 # delim: end of string
@@ -254,6 +252,6 @@
 
 ############################################################
 .data
-	fileOut: .asciiz "C:/Users/Administrator/Desktop/nguoichoi.txt"
+	fileOut: .asciiz "D:/Assembly/HangmanMips/nguoichoi.txt"
 	buffer: .space 2048
 	storeSaveChar: .byte
