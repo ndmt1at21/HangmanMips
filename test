@@ -3,17 +3,10 @@
 .include "Random.asm"
 
 .data
-	str:	.space		11
-	ch:	.byte		'z'
-	fileIn:	.asciiz		"D:/Assembly/HangmanMips/dictionary.txt"
+	s:	.space		10
+	str:	.asciiz		"abc*xyz*gth"
 .text
-	la	$a0, str
-	li	$t0, 0
-	
-	Loop:
-		addi	$t0, $t0, 1
-		getline($a0, '*', fileIn)
-		printString($a0)
-		printChar('\n')
-		blt	$t0, 26, Loop
-	
+	la	$a0, s
+	la	$a1, str
+	getStr($a0, $a1, '*', -1)
+	printString($a0)

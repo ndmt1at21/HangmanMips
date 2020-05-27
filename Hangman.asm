@@ -11,21 +11,23 @@
 	askInputWord:		.asciiz		"Tu ban doan la gi nao?"
 	askStatusGame:		.asciiz 	"Ban co muon tiep tuc tro choi?"
 	chooseGuessWord:	.asciiz		"Ban muon doan ca tu khong?"
-	notiLostGame:		.asciiz		"Ban da bi treo co =))"
+	notiLostGame:		.asciiz		"Ban da bi treo co o_o"
 	notiRightWord:		.asciiz 	"Chinh xac!!! Ban gioi qua ^^"
 	notiWrongChar:		.asciiz		"Ban da doan sai ky tu roi :("
 	hiddenWord:		.space		11
 	guessWord:		.space		11
 	guessChar:		.space		1
-	tempStr:		.space		21
+	tempStr:		.space		100
 	playerName:		.space		21
 	playerScore:		.word		0
 	playerWord:		.byte		0
 	playerStatus:		.byte		0
 	
-	allPlayerName:		.space		512	# 20 bytes / 1 player -> ~ 25 player
+	allPlayerNamePtr:	.word 		28	# ptr contains address string name player
+	allPlayerNameBuff:	.space		528	# 20 bytes / 1 player -> ~ 25 player
 	allPlayerScore:		.space		112	# 25 player * 4 bytes
 	allPlayerWord:		.space		28	# 25 plyer * 1 bytes
+	numPlayer:		.byte		0
 	dictionary:		.asciiz 	"D:/Assembly/HangmanMips/dictionary.txt"
 	dataPlayer:		.asciiz		"D:/Assembly/HangmanMips/nguoichoi.txt"
 .text
@@ -45,7 +47,9 @@ main:
 LoopHangmanGame:
 	# get hidden word
 	la	$a0, hiddenWord
-	getline($a0, '*', dictionary)
+	RanDom_int(25)
+	move	$s0, $v0
+	getline($s0, $a0, '*', "D:/Assembly/HangmanMips/dictionary.txt")
 	printString($a0)
 	
 	# init guess word
@@ -92,6 +96,14 @@ _CheckGuessWord:
 	j 	GuessWordWrong
 		
 	GuessWordRight:
+		# play success sound
+		li	$v0, 31
+		li	$a0, 72
+		li	$a1, 1000
+		li	$a2, 12
+		li	$a3, 127
+		syscall
+		
 		# noti right word
 		la	$a0, notiRightWord
 		showMsgBox($a0, 1)
@@ -101,6 +113,7 @@ _CheckGuessWord:
 		
 		# inc score
 		lw	$a0, playerScore
+		la	$a1, hiddenWord
 		strlen($a1)
 		add	$a0, $a0, $v0
 		sw	$a0, playerScore
@@ -116,19 +129,19 @@ _CheckGuessWord:
 	GuessWordWrong:
 		# save infor player 
 		la	$a0, playerName
-		saveString($a0, 1)
-		saveChar('-', 1)
+		saveString($a0, 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
+		saveChar('-', 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
 		
 		lw	$a0, playerScore
 		la	$a1, tempStr
 		toString($a1, $a0)
-		saveString($a1, 1)
-		saveChar('-', 1)
+		saveString($a1, 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
+		saveChar('-', 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
 		
 		lb	$a0, playerWord
 		toString($a1, $a0)
-		saveString($a1, 1)
-		saveChar('*', 1)
+		saveString($a1, 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
+		saveChar('*', 1, "D:/Assembly/HangmanMips/nguoichoi.txt")
 		
 		
 		# status player = 7
@@ -139,6 +152,14 @@ _CheckGuessWord:
 		j	_GameOver
 		
 _GameOver:
+		# play sound game over
+		li $v0, 31
+		li $a0, 5
+		li $a1, 2000
+		li $a2, 0
+		li $a3, 127	
+		syscall	
+		
 		# draw man
 		jal 	_DrawPlayerStatus
 		
@@ -181,6 +202,14 @@ _CheckGuessChar:
 		# check status player
 		beq	$a0, 7, _GameOver
 		
+		# play sound
+		li $v0, 31
+		li $a0, 60	# pitch, C#
+		li $a1, 500	#duration in milisecond
+		li $a2, 111	#instrument (0 - 7 piano)
+		li $a3, 127	#volume
+		syscall
+		
 		# show wrong answer 
 		la	$a0, notiWrongChar
 		showMsgBox($a0, 0)
@@ -192,6 +221,14 @@ _CheckGuessChar:
 		j	LoopGuessOneWord
 		
 	CharInHidden:
+		# play success sound
+		li	$v0, 31
+		li	$a0, 72
+		li	$a1, 500
+		li	$a2, 12
+		li	$a3, 127
+		syscall
+		
 		la	$a0, guessWord
 		lb	$a1, guessChar
 		la	$a2, hiddenWord
@@ -248,43 +285,42 @@ _DrawPlayerStatus:
 	
 _Top10Player:
 	# load data
-	
-# Para: $t3, $t4
-# $t2: register contains pos name1 (not need x20 bytes)
-# $t3: register contains pos name2 
-_swapNamePlayer:
-	pushStack($t0)
-	pushStack($t1)
-	pushStack($t2)
-	pushStack($s0)
-	pushStack($s1)
-	
-	la	$s0, allPlayerName
-	la	$s1, allPlayerName
-	add	$s0, $s0, $t3
-	add	$s1, $s1, $t3
-	
 	li	$t0, 0
-	LoopSwapNamePlayer:
-		# addi count
+	la	$a0, tempStr
+	la	$a1, allPlayerNameBuff
+	la	$a2, allPlayerScore
+	la	$a3, allPlayerWord
+	la	$s0, allPlayerNamePtr
+	
+	# read from file
+	LoopReadDataPlayer:
+		# get data 1 player
+		getline($s0, $t4, '*', "D:/Assembly/HangmanMips/nguoichoi.txt")
+		beq	$v0, -1, EndLoopReadDataPlayer
+		
+		# get name player
+		getstr($a1, $a0, '-', 0)
+		move	$s0, $a1
+		addi	$a1, $a1, 21
+		addi	$s0, $s0, 1
+		
+		# get score player
+		getstr($a1, $a0, '-', 1)
+		toInt($a1)
+		sw	$v0, ($s2)
+		addi	$s2, $s2, 1
+		
+		# get num word player
+		getstr($a1, $a0, '-', 2)
+		toInt($a1)
+		sw	$v0, ($s3)
+		addi	$s3, $s3, 1
+		
+		# inc index word
 		addi	$t0, $t0, 1
 		
-		# load data
-		lb	$t1, ($s0)
-		lb	$t2, ($s1)
-		sb	$t2, ($s0)
-		sb	$t1, ($s1)
+		# condition loop
+		beq	$zero, $zero, LoopReadDataPlayer
 		
-		# inc address
-		addi	$s0, $s0, 1
-		addi	$s1, $s1, 1
-		
-		# conditon loop
-		blt	$t0, 20, LoopSwapNamePlayer
-	
-	popStack($s1)
-	popStack($s0)
-	popStack($t2)
-	popStack($t1)
-	popStack($t0)
-	
+	EndLoopReadDataPlayer:
+		sw	$t0, numPlayer
