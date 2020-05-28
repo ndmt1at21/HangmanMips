@@ -14,17 +14,17 @@
 	notiLostGame:		.asciiz		"Ban da bi treo co o_o"
 	notiRightWord:		.asciiz 	"Chinh xac!!! Ban gioi qua ^^"
 	notiWrongChar:		.asciiz		"Ban da doan sai ky tu roi :("
-	hiddenWord:		.space		11
-	guessWord:		.space		11
-	guessChar:		.space		1
-	tempStr:		.space		100
-	playerName:		.space		21
+	hiddenWord:		.space		12
+	guessWord:		.space		12
+	guessChar:		.space		4
+	tempStr:		.space		48
+	playerName:		.space		24
 	playerScore:		.word		0
-	playerWord:		.byte		0
-	playerStatus:		.byte		0
+	playerWord:		.word		0
+	playerStatus:		.word		0
 	
-	allPlayerNamePtr:	.word 		28	# ptr contains address string name player
 	allPlayerNameBuff:	.space		528	# 20 bytes / 1 player -> ~ 25 player
+	allPlayerNamePtr:	.space		112	# ptr contains address string name player
 	allPlayerScore:		.space		112	# 25 player * 4 bytes
 	allPlayerWord:		.space		28	# 25 plyer * 1 bytes
 	numPlayer:		.byte		0
@@ -138,7 +138,7 @@ _CheckGuessWord:
 		saveString($a1, 1, dataPlayer)
 		saveChar('-', 1, dataPlayer)
 		
-		lb	$a0, playerWord
+		lw	$a0, playerWord
 		toString($a1, $a0)
 		saveString($a1, 1, dataPlayer)
 		saveChar('*', 1, dataPlayer)
@@ -284,4 +284,55 @@ _DrawPlayerStatus:
 	jr	$ra
 	
 _Top10Player:
+	# load data
+	li	$s1, 0
+	la	$a0, tempStr
+	la	$a1, allPlayerNameBuff
+	la	$a2, allPlayerScore
+	la	$a3, allPlayerWord
+	la	$s0, allPlayerNamePtr
+	
+	# read from file
+	LoopReadDataPlayer:
+		# get data 1 player
+		getline($s1, $a0, '*', dataPlayer)
+		beq	$v0, -1, EndLoopReadDataPlayer
+		
+		# get name player
+		getstr($a1, $a0, '-', 0)
+		sw	$a1, ($s0)
+		addi	$a1, $a1, 21
+		addi	$s0, $s0, 4
+		
+		# get score
+		getstr($a2, $a0, '-', 1)
+		toInt($a2)
+		sw	$v0, ($a2)
+		addi	$a2, $a2, 4
+		
+		# get num word
+		getstr($a3, $a0, '-', 2)
+		toInt($a3)
+		sw	$v0, ($a3)
+		addi	$a3, $a3, 4
+		
+		# inc number player
+		addi	$s1, $s1, 1
+		
+		# condition loop
+		beq	$zero, $zero, LoopReadDataPlayer
+		
+	EndLoopReadDataPlayer:
+		sb	$s1, numPlayer
+	
+	# sap xep va thien thi
+	# load lai cac bien , cac array
+	# allPlayerNamePtr: mang con tro tro den dia chi cua cac ten player
+	
+	# tesst load name 1 player
+	la	$a0, allPlayerNamePtr
+	lw	$a1, ($a0)
+	printString($a1)
+
+	
 	

@@ -545,6 +545,7 @@
 		sub	$t2, $t1, $t0
 		substr($s0, $s1, $t0, $t2)
 	
+	popStack($s3)
 	popStack($s2)
 	popStack($s1)
 	popStack($s0)

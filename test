@@ -1,12 +1,18 @@
 .include "CommonFunc.asm"
-.include "FileIO.asm"
-.include "Random.asm"
 
 .data
-	dataPlayer:		.asciiz		"D:/Assembly/HangmanMips/nguoichoi.txt"
-	str:	.asciiz		"ab"
-	str1:	.space		100
+	str: .space 11
+	str2: .space 4
+	
 .text
-	la	$a2, str
-	saveString($a2, 0, dataPlayer)
-	saveChar('-', 0, dataPlayer)
+	li	$v0, 5
+	la	$t1, str2
+	sw	$v0, ($t1)
+	
+	lw	$t2, ($t1)
+	printInt($t2)
+		
+		
+		
+		
+		
