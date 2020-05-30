@@ -5,12 +5,9 @@
 	str2: .space 4
 	
 .text
-	li	$v0, 5
-	la	$t1, str2
-	sw	$v0, ($t1)
-	
-	lw	$t2, ($t1)
-	printInt($t2)
+	li	$t2, 4
+	li	$a2, 0
+	sw	$t2, $t2($a2)
 		
 		
 		

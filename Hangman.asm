@@ -26,7 +26,7 @@
 	allPlayerNameBuff:	.space		528	# 20 bytes / 1 player -> ~ 25 player
 	allPlayerNamePtr:	.space		112	# ptr contains address string name player
 	allPlayerScore:		.space		112	# 25 player * 4 bytes
-	allPlayerWord:		.space		28	# 25 plyer * 1 bytes
+	allPlayerWord:		.space		112	# 25 plyer * 1 bytes
 	numPlayer:		.byte		0
 	dictionary:		.asciiz 	"D:/Assembly/HangmanMips/dictionary.txt"
 	dataPlayer:		.asciiz		"D:/Assembly/HangmanMips/nguoichoi.txt"
@@ -324,15 +324,133 @@ _Top10Player:
 		
 	EndLoopReadDataPlayer:
 		sb	$s1, numPlayer
-	
-	# sap xep va thien thi
-	# load lai cac bien , cac array
-	# allPlayerNamePtr: mang con tro tro den dia chi cua cac ten player
-	
-	# tesst load name 1 player
-	la	$a0, allPlayerNamePtr
-	lw	$a1, ($a0)
-	printString($a1)
 
+	# sort 
+	la	$a0, allPlayerNamePtr
+	la	$a1, allPlayerScore
+	la	$a2, allPlayerWord
 	
+	li	$t0, 0 # i
+	li	$t1, 0 # j
+	li	$t2, 0 # max_index
+	lb	$t3, numPlayer
+	li	$t4, 0 # address arr[j]
+	li	$t5, 0 # address arr[min_index]
+	li	$t6, 4 # for x4
+	li	$s0, 0
+	li	$s1, 0
+	li	$s2, 0
+	
+	LoopForI:
+		move	$t2, $t0
+		bge	$t0, $t3, EndLoopForI
+		
+		move	$t1, $t0
+		LoopForJ:
+			# codition break
+			bge	$t1, $t3, EndLoopForJ 
+			
+			# cal address element in array
+			mult	$t1, $t6
+			mflo	$t4
+			
+			mult	$t2, $t6
+			mflo	$t5
+			
+			# compare and change min_index
+			add	$a1, $a1, $t4
+			lw	$s0, ($a1)
+			sub	$a1, $a1, $t4
+			
+			add	$a1, $a1, $t5
+			lw	$s1, ($a1)
+			sub 	$a1, $a1, $t5
+		
+			bgt 	$s0, $s1, ChangeMaxIndex 
+			j 	IncreaseJ
+			
+			ChangeMaxIndex:
+				move	$t2, $t1
+				
+			IncreaseJ:
+				addi	$t1, $t1, 1
+				
+			beq	$zero, $zero, LoopForJ
+		EndLoopForJ:
+
+		# swap
+		mult	$t2, $t6
+		mflo	$t4
+		
+		mult	$t0, $t6
+		mflo	$t5
+		
+		# swap name
+		add	$a0, $a0, $t4
+		lw	$s0, ($a0)
+		sub	$a0, $a0, $t4
+		
+		add	$a0, $a0, $t5
+		lw	$s1, ($a0)
+		sub	$a0, $a0, $t5
+		
+		swap($s0, $s1)
+		
+		add	$a0, $a0, $t4
+		sw	$s0, ($a0)
+		sub	$a0, $a0, $t4
+		
+		add	$a0, $a0, $t5
+		sw	$s1, ($a0)
+		sub	$a0, $a0, $t5
+		
+		# swap score
+		add	$a1, $a1, $t4
+		lw	$s0, ($a1)
+		sub	$a1, $a1, $t4
+		
+		add	$a1, $a1, $t5
+		lw	$s1, ($a1)
+		sub	$a1, $a1, $t5
+		
+		swap($s0, $s1)
+		
+		add	$a1, $a1, $t4
+		sw	$s0, ($a1)
+		sub	$a1, $a1, $t4
+		
+		add	$a1, $a1, $t5
+		sw	$s1, ($a1)
+		sub	$a1, $a1, $t5
+		
+		# swap num word
+		add	$a2, $a2, $t4
+		lw	$s0, ($a2)
+		sub	$a2, $a2, $t4
+		
+		add	$a2, $a2, $t5
+		lw	$s1, ($a2)
+		sub	$a2, $a2, $t5
+		
+		swap($s0, $s1)
+		
+		add	$a2, $a2, $t4
+		sw	$s0, ($a2)
+		sub	$a2, $a2, $t4
+		
+		add	$a2, $a2, $t5
+		sw	$s1, ($a2)
+		sub	$a2, $a2, $t5
+		
+		# inc i
+		addi	$t0, $t0, 1
+		
+		beq	$zero, $zero, LoopForI
+	EndLoopForI:		
+	
+	lb	$a3, numPlayer
+	printChar('\n')
+	printArrInt($a1, $a3)
+	printChar('\n')
+	printArrInt($a2, $a3)
 	
