@@ -28,8 +28,11 @@
 	allPlayerScore:		.space		112	# 25 player * 4 bytes
 	allPlayerWord:		.space		112	# 25 plyer * 1 bytes
 	numPlayer:		.byte		0
-	dictionary:		.asciiz 	"D:/Assembly/HangmanMips/dictionary.txt"
-	dataPlayer:		.asciiz		"D:/Assembly/HangmanMips/nguoichoi.txt"
+	dictionary:		.asciiz 	"dictionary.txt"
+	dataPlayer:		.asciiz		"nguoichoi.txt"
+	notiName:		.asciiz		"Name\t"
+	notiScore:		.asciiz		"Score\t"
+	notiWord:		.asciiz		"Num word\n"
 .text
 main:
 	# intro game
@@ -51,6 +54,7 @@ LoopHangmanGame:
 	move	$s0, $v0
 	getline($s0, $a0, '*', dictionary)
 	printString($a0)
+	printChar('\n')
 	
 	# init guess word
 	strlen($a0)
@@ -143,7 +147,6 @@ _CheckGuessWord:
 		saveString($a1, 1, dataPlayer)
 		saveChar('*', 1, dataPlayer)
 		
-		
 		# status player = 7
 		li	$a0, 7
 		sb	$a0, playerStatus
@@ -166,6 +169,25 @@ _GameOver:
 		# notifi game over
 		la	$a0, notiLostGame
 		showMsgBox($a0, 0)
+		
+		# show infor player
+		printConstString("\nPlayer's infor\n")
+		la	$a0, notiName
+		la	$a1, notiScore
+		la	$a2, notiWord
+		printString($a0)
+		printString($a1)
+		printString($a2)
+		
+		la	$a0, playerName
+		lw	$a1, playerScore
+		lw	$a2, playerWord
+		printString($a0)
+		printChar('\t')
+		printInt($a1)
+		printChar('\t')
+		printInt($a2)
+		printChar('\n')
 		
 		# reset para
 		sb	$zero, playerStatus
@@ -448,9 +470,49 @@ _Top10Player:
 		beq	$zero, $zero, LoopForI
 	EndLoopForI:		
 	
-	lb	$a3, numPlayer
-	printChar('\n')
-	printArrInt($a1, $a3)
-	printChar('\n')
-	printArrInt($a2, $a3)
+	# print header
+	printConstString("\nTop 10 Player\n")
+	la	$a0, notiName
+	la	$a1, notiScore
+	la	$a2, notiWord
+
+	printString($a0)
+	printString($a1)
+	printString($a2)
 	
+	# print top 10 player
+	li	$t0, 0
+	lb	$t1, numPlayer
+	la	$a0, allPlayerNamePtr
+	la	$a1, allPlayerScore
+	la	$a2, allPlayerWord
+	
+	bgt	$t1, 10, Assign10
+	Assign10:
+		li	$t1, 10
+		j	LoopPrintTop10
+	
+	LoopPrintTop10:
+		# load data
+		lw	$s0, ($a0)
+		lw	$s1, ($a1)
+		lw	$s2, ($a2)
+		
+		# print data
+		printString($s0)
+		printChar('\t')
+		printInt($s1)
+		printChar('\t')
+		printInt($s2)
+		printChar('\n')
+		
+		# increase address
+		addi	$a0, $a0, 4
+		addi	$a1, $a1, 4
+		addi	$a2, $a2, 4
+		
+		# inc count
+		addi 	$t0, $t0, 1
+		
+		# condition loop
+		blt	$t0, 10, LoopPrintTop10
