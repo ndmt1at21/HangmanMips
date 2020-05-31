@@ -1,13 +1,12 @@
 .include "CommonFunc.asm"
+.include "Graphics.asm"
 
 .data
 	str: .space 11
 	str2: .space 4
 	
 .text
-	li	$t2, 4
-	li	$a2, 0
-	sw	$t2, $t2($a2)
+	FillRectangle(0,0,100,100,0x0FFF000)
 		
 		
 		

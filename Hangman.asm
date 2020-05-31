@@ -48,13 +48,22 @@ main:
 		beq	$v0, 0, InputPlayerName
 	
 LoopHangmanGame:
+	li	$a0, 0
+	li	$a1, 0
+	LoopYClearScreen:
+		LoopXClearScreen:
+			drawPixel($a0, $a1, 0x00000000)
+			addi	$a0, $a0, 1
+			blt	$a0, 128, LoopXClearScreen
+		li	$a0, 0
+		addi	$a1, $a1, 1
+		blt	$a1, 128, LoopYClearScreen
+	
 	# get hidden word
 	la	$a0, hiddenWord
 	RanDom_int(25)
 	move	$s0, $v0
 	getline($s0, $a0, '*', dictionary)
-	printString($a0)
-	printChar('\n')
 	
 	# init guess word
 	strlen($a0)
@@ -171,7 +180,7 @@ _GameOver:
 		showMsgBox($a0, 0)
 		
 		# show infor player
-		printConstString("\nPlayer's infor\n")
+		printConstString(" Player's infor\n")
 		la	$a0, notiName
 		la	$a1, notiScore
 		la	$a2, notiWord
@@ -199,6 +208,17 @@ _GameOver:
 		
 		beq	$v0, 0, LoopHangmanGame
 		j	_Top10Player	
+		
+		ContinueGame:
+			# clear screen
+			addi	$a0, $gp, 1024
+			move	$a1, $gp
+			
+			drawPixel(100, 100, 0x00FF0000)
+				
+			EndClearScreen:
+			j 	LoopHangmanGame
+		
 	
 _CheckGuessChar:
 	# check if full char filled, compare with hidden word
@@ -488,10 +508,11 @@ _Top10Player:
 	la	$a2, allPlayerWord
 	
 	bgt	$t1, 10, Assign10
+	j 	LoopPrintTop10
+	
 	Assign10:
 		li	$t1, 10
-		j	LoopPrintTop10
-	
+
 	LoopPrintTop10:
 		# load data
 		lw	$s0, ($a0)
@@ -515,4 +536,4 @@ _Top10Player:
 		addi 	$t0, $t0, 1
 		
 		# condition loop
-		blt	$t0, 10, LoopPrintTop10
+		blt	$t0, $t1, LoopPrintTop10

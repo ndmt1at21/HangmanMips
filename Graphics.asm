@@ -11,6 +11,7 @@
 	pushStack($t0)
 	pushStack($t1)
 	pushStack($t2)
+	pushStack($t3)
 	
 	# (y * realWidth + x) * 4 byte (1 pixel = 4 bytes)
 	add	$t0, $zero, %x
@@ -32,10 +33,12 @@
 	
 	# save color
 	add	$t2, $zero, %color
-	add	$gp, $gp, $t1
-	sw	$t2, ($gp)
-	sub	$gp, $gp, $t1
+	li	$t3, 0x10000000
+	add	$t3, $t3, $t1
+	sw	$t2, ($t3)
+	sub	$t3, $t3, $t1
 	
+	popStack($t3)
 	popStack($t2)
 	popStack($t1)
 	popStack($t0)
@@ -422,36 +425,4 @@
 	popStack($t1)
 	popStack($t0)
 	
-.end_macro
-
-.macro FillRectangle(%x,%y,%width,%height,%color)
-	pushStack($s0)
-	pushStack($s1)
-	pushStack($t0)
-	pushStack($t1)
-	
-	#Init
-	add $s0,$zero,%x #xStart
-	add $t1,$zero,%y #yStart
-	add $s1,$zero,%width 	
-	add $t0,$zero,%height 
-	
-	add $t0,$t0,$t1 #yEnd
-	add $s1,$s1,$s0 #xEnd
-	
-	#Loop
-	
-	fillloop:
-	drawHorizontalLine($s0,$t1,$s1,%color)
-	
-	#Increase y
-	addi $t1,$t1,1
-	
-	#Condition
-	blt $t1,$t0,fillloop 
-	
-	popStack($t1)
-	popStack($t0)
-	popStack($s1)
-	popStack($s0)
 .end_macro
