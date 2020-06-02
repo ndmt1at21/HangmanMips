@@ -42,12 +42,12 @@
 		syscall
 	
 		lb $t3, buff
-		la $a0, 0x00
 	
-		beq $t3, $a0, Error	# Can not find word
+		beqz $v0, Error	# Can not find word
 		beqz $t1, getWord	# first word
 		beq $t3, %delim, count	# if we encounters delim while reading characters, count it to $t2
 		beq $t1, $t2, getWord	# if we find that word, go to getWord
+
 		j FindWord
 	
 	count:
@@ -55,33 +55,35 @@
 		j FindWord
 		
 	getWord:
-		la $a0, buff
-		lb $t3, ($a0)
+		lb $t3, buff
 		sb $t3, ($t4)
-	
-			
+		
+		addi $t4, $t4, 1
+	Loop:
 		li $v0, 14
 		move $a0, $s7
 		la $a1, buff
 		la $a2, 1
 		syscall
 	
+		lb $t3, buff
+		
 		beq $t3, %delim, getWordExit
-		beqz $t3, getWordExit
+		beqz $v0, getWordExit
 
 		sb $t3, ($t4)
 		
 		addi $t4, $t4, 1
-		j getWord
+		j Loop
 		
 	getWordExit:
 		li $t3, 0x00
 		sb $t3, ($t4)
-		li $v0, 0
+		li $t0, 0
 		j end
 		
 	Error:
-		li $v0, -1
+		li $t0, -1
 		li $t3, 0x00
 		sb $t3, ($t4)
 	
@@ -91,6 +93,7 @@
 	move $a0, $s7      # file descriptor to close
 	syscall            # close file
 	
+	move $v0, $t0
 	
 	popStack($a2)	
 	popStack($a1)	
