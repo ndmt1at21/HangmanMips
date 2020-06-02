@@ -1,3 +1,4 @@
+.include "CommonFunc.asm"
 #Get string in buffer when reach first delim store in dstStr
 # wordPos: pos of the Word in dictionary
 # delim: end of string
@@ -7,7 +8,7 @@
 # load from buffer
 .macro getline(%wordPos, %dstStr, %delim, %path)
 .data
-	buffer: .space 2048
+	buff: .space 1
 .text
 	pushStack($t0)
 	pushStack($t1)
@@ -20,6 +21,7 @@
 	pushStack($a2)
 	
         move $t4, %dstStr
+       	move $t1, %wordPos 	# Word position
         	
 	#Open file
 	li $v0, 13
@@ -27,49 +29,51 @@
 	li $a1, 0
 	li $a2, 0
 	syscall
-	
-	move $s7, $v0 #save file descriptor
-	
-	#Reading file
-	li $v0, 14
-	move $a0, $s7
-	la $a1, buffer
-	la $a2, 2048
-	syscall
+	move $s7, $v0		#save file descriptor
 		
-	# Close the file 
-	li   $v0, 16       # system call for close file
-	move $a0, $s7      # file descriptor to close
-	syscall            # close file
-	
-	la $t0, buffer
-	move $t1, %wordPos 	# Word position
 	li $t2, 0	# Check whether we encounter random int or not
-	la $a0, 0x00
+
+	FindWord:
+		#Reading file
+		li $v0, 14
+		move $a0, $s7
+		la $a1, buff
+		la $a2, 1
+		syscall
 	
-	loop:  
-		lb $t3, ($t0)		# Load first char in buffer to $t3
+		lb $t3, buff
+		la $a0, 0x00
+	
 		beq $t3, $a0, Error	# Can not find word
 		beqz $t1, getWord	# first word
 		beq $t3, %delim, count	# if we encounters delim while reading characters, count it to $t2
 		beq $t1, $t2, getWord	# if we find that word, go to getWord
-		addi $t0, $t0, 1	# else increment the address unless it find the word
-		j loop
+		j FindWord
+	
 	count:
 		addi $t2, $t2, 1
-		addi $t0, $t0, 1
-		j loop
+		j FindWord
 		
 	getWord:
+		la $a0, buff
+		lb $t3, ($a0)
+		sb $t3, ($t4)
+	
+			
+		li $v0, 14
+		move $a0, $s7
+		la $a1, buff
+		la $a2, 1
+		syscall
+	
+		beq $t3, %delim, getWordExit
+		beqz $t3, getWordExit
+
+		sb $t3, ($t4)
 		
-		LoopGetWord:
-			lb $t3, ($t0)
-			beq $t3, %delim, getWordExit
-			beqz $t3, getWordExit
-			sb $t3, ($t4)
-			addi $t0, $t0, 1
-			addi $t4, $t4, 1
-			j LoopGetWord 
+		addi $t4, $t4, 1
+		j getWord
+		
 	getWordExit:
 		li $t3, 0x00
 		sb $t3, ($t4)
@@ -82,6 +86,11 @@
 		sb $t3, ($t4)
 	
 	end:
+	# Close the file 
+	li   $v0, 16       # system call for close file
+	move $a0, $s7      # file descriptor to close
+	syscall            # close file
+	
 	
 	popStack($a2)	
 	popStack($a1)	
@@ -259,4 +268,4 @@
 	popStack($t1)
 	popStack($t0)
 	popStack($s7)
-.end_macro
+.end_macro	
