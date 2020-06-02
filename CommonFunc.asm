@@ -813,3 +813,28 @@
 	move	%b, $t0
 	popStack($t0)
 .end_macro
+
+
+###############################################
+# ============== Allocate heap ===============#
+###############################################
+
+# Macro: allocate heap
+# %nByte: num byte allocate in heap
+# return in $v0: address memnory
+.macro createMem(%nByte)
+	pushStack($a0)
+	
+	li	$v0, 9
+	li	$a0, 40
+	syscall
+	
+	popStack($a0)
+.end_macro
+
+# Macro: delete memory
+# %nByteSize: num byte
+# $ptr: register contains address 
+.macro deleteMem(%ptr, %nByteSize)
+	sub	%ptr, %ptr, %nByteSize
+.end_macro

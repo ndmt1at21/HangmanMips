@@ -27,6 +27,7 @@
 	allPlayerNamePtr:	.space		112	# ptr contains address string name player
 	allPlayerScore:		.space		112	# 25 player * 4 bytes
 	allPlayerWord:		.space		112	# 25 plyer * 1 bytes
+	numWordDictionary:	.word		0
 	numPlayer:		.byte		0
 	dictionary:		.asciiz 	"dictionary.txt"
 	dataPlayer:		.asciiz		"nguoichoi.txt"
@@ -47,7 +48,19 @@ main:
 		isalnum($a1)
 		beq	$v0, 0, InputPlayerName
 	
+	# count num word in dictionary
+	li	$s0, 0
+	la	$a0, tempStr
+	LoopCountWordDictionary:
+		getline($s0, $a0, '*', dictionary)
+		beq	$v0, -1, EndLoopCountWordDictionary
+		addi	$s0, $s0, 1
+		j	LoopCountWordDictionary
+	EndLoopCountWordDictionary:
+	sw	$s0, numWordDictionary
+
 LoopHangmanGame:
+	# clear screen
 	li	$a0, 0
 	li	$a1, 0
 	LoopYClearScreen:
@@ -61,7 +74,8 @@ LoopHangmanGame:
 	
 	# get hidden word
 	la	$a0, hiddenWord
-	RanDom_int(25)
+	lw	$a1, numWordDictionary
+	RanDom_int($a1)
 	move	$s0, $v0
 	getline($s0, $a0, '*', dictionary)
 	
@@ -82,7 +96,7 @@ LoopHangmanGame:
 		move	$a0, $v0
 		beq	$a0, 0, InputGuessOneWord
 		beq	$a0, 1, InputGuessOneChar
-		j	InputGuessOneWord
+		j	InputGuessOneChar
 		
 		InputGuessOneWord:
 			la	$a0, askInputWord
@@ -343,6 +357,7 @@ _Top10Player:
 		# get name player
 		getstr($a1, $a0, '-', 0)
 		sw	$a1, ($s0)
+		printString($a0)
 		addi	$a1, $a1, 21
 		addi	$s0, $s0, 4
 		
@@ -360,13 +375,13 @@ _Top10Player:
 		
 		# inc number player
 		addi	$s1, $s1, 1
-		
+	
 		# condition loop
 		beq	$zero, $zero, LoopReadDataPlayer
 		
 	EndLoopReadDataPlayer:
 		sb	$s1, numPlayer
-
+	
 	# sort 
 	la	$a0, allPlayerNamePtr
 	la	$a1, allPlayerScore
