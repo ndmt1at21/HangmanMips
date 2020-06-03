@@ -6,8 +6,14 @@ To run it you must move the dictionary.txt file to the same directory that the m
 
 # Bitmap Display
 Unit Width in Pixels: 4
+
 Unit Height in Pixels: 4
 
+Display Width in Pixels: 512
+
+Display Height in Pixels: 512
+
+Base address: 0x1001000
 
 # Group Information:
 1. Nguyễn Đức Minh Trí
