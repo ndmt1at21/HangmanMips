@@ -4,14 +4,14 @@ Simple Hangman game implemented in the MIPS architecture for the MARS emulator. 
 
 To run it you must move the dictionary.txt file to the same directory that the mars.jar file is in.
 
-Bitmap Display
+# Bitmap Display
 Unit Width in Pixels: 4
 Unit Height in Pixels: 4
 Display Width in Pixels: 512
 Display Height in Pixels: 512
 Base address for display: 0x10010000
 
-Group Information:
+# Group Information:
 1. Nguyễn Đức Minh Trí
 2. Nguyễn Ngọc Năng Toàn
 3. Triệu Trang Tòng
