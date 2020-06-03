@@ -180,6 +180,84 @@ _CheckGuessWord:
 		# show over screen
 		j	_GameOver
 		
+	
+_CheckGuessChar:
+	# check if full char filled, compare with hidden word
+	la	$a0, hiddenWord
+	la	$a1, guessWord
+
+	strFind($a1, 0, '@')
+	beq	$v0, -1, _CheckGuessWord
+	  
+	# check hidden word contain guessChar
+	lb	$a0, guessChar
+	la	$a1, hiddenWord
+	strFind($a1, 0, $a0)
+	
+	beq	$v0, -1, CharNotInHidden 
+	j	CharInHidden
+	
+	CharNotInHidden:
+		lb	$a0, playerStatus
+		addi	$a0, $a0, 1
+		sb	$a0, playerStatus
+		
+		# check status player
+		beq	$a0, 7, GuessWordWrong
+		
+		# play sound
+		li $v0, 31
+		li $a0, 60	# pitch, C#
+		li $a1, 500	#duration in milisecond
+		li $a2, 111	#instrument (0 - 7 piano)
+		li $a3, 127	#volume
+		syscall
+		
+		# show wrong answer 
+		la	$a0, notiWrongChar
+		showMsgBox($a0, 0)
+		
+		# draw status
+		jal	_DrawPlayerStatus
+	
+		# jump to Loop Guess One word
+		j	LoopGuessOneWord
+		
+	CharInHidden:
+		# play success sound
+		li	$v0, 31
+		li	$a0, 72
+		li	$a1, 500
+		li	$a2, 12
+		li	$a3, 127
+		syscall
+		
+		la	$a0, guessWord
+		lb	$a1, guessChar
+		la	$a2, hiddenWord
+		li	$t0, -1
+		
+		LoopFillChar:
+			# posStartFind = prevPos + 1
+			addi	$t0, $t0, 1
+			
+			# find pos char in hideen word 
+			strFind($a2, $t0, $a1)
+			move	$t0, $v0
+			
+			# save to guessWord
+			add	$a0, $a0, $t0
+			sb	$a1, ($a0)
+			sub	$a0, $a0, $t0
+			
+			# condition loop
+			bne	$t0, -1, LoopFillChar
+			
+		strcmp($a0, $a2)
+		beq	$v0, 1, GuessWordRight
+		j	LoopGuessOneWord
+
+
 _GameOver:
 		# play sound game over
 		li $v0, 31
@@ -237,84 +315,8 @@ _GameOver:
 				
 			EndClearScreen:
 			j 	LoopHangmanGame
-		
-	
-_CheckGuessChar:
-	# check if full char filled, compare with hidden word
-	la	$a0, hiddenWord
-	la	$a1, guessWord
-
-	strFind($a1, 0, '@')
-	beq	$v0, -1, _CheckGuessWord
-	  
-	# check hidden word contain guessChar
-	lb	$a0, guessChar
-	la	$a1, hiddenWord
-	strFind($a1, 0, $a0)
-	
-	beq	$v0, -1, CharNotInHidden 
-	j	CharInHidden
-	
-	CharNotInHidden:
-		lb	$a0, playerStatus
-		addi	$a0, $a0, 1
-		sb	$a0, playerStatus
-		
-		# check status player
-		beq	$a0, 7, _GameOver
-		
-		# play sound
-		li $v0, 31
-		li $a0, 60	# pitch, C#
-		li $a1, 500	#duration in milisecond
-		li $a2, 111	#instrument (0 - 7 piano)
-		li $a3, 127	#volume
-		syscall
-		
-		# show wrong answer 
-		la	$a0, notiWrongChar
-		showMsgBox($a0, 0)
-		
-		# draw status
-		jal	_DrawPlayerStatus
-	
-		# jump to Loop Guess One word
-		j	LoopGuessOneWord
-		
-	CharInHidden:
-		# play success sound
-		li	$v0, 31
-		li	$a0, 72
-		li	$a1, 500
-		li	$a2, 12
-		li	$a3, 127
-		syscall
-		
-		la	$a0, guessWord
-		lb	$a1, guessChar
-		la	$a2, hiddenWord
-		li	$t0, -1
-
-		
-		LoopFillChar:
-			# posStartFind = prevPos + 1
-			addi	$t0, $t0, 1
 			
-			# find pos char in hideen word 
-			strFind($a2, $t0, $a1)
-			move	$t0, $v0
-			
-			# save to guessWord
-			add	$a0, $a0, $t0
-			sb	$a1, ($a0)
-			sub	$a0, $a0, $t0
-			
-			# condition loop
-			bne	$t0, -1, LoopFillChar
-			
-		
-		j	LoopGuessOneWord
-			
+							
 _DrawPlayerStatus:
 	pushStack($ra)
 	pushStack($t0)
