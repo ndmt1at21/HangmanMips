@@ -22,3 +22,6 @@ Base address: 0x1001000
 4. Trần Ngọc Tịnh
 
 -- 06/2020, HCMUS --
+
+# Video
+https://youtu.be/qimrD4WzzMY
