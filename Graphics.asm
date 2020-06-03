@@ -2,7 +2,7 @@
 # Heigth: 512 pixels
 # Unit width: 4 pixels
 # Unit height: 4 pixels
-# Base address: 0x100080000 ($gp)
+# Base address: 0x10010000 (static data)
 # Real width: 512 / 4 = 128
 # Real hight: 512 / 4 = 128
 # %color: RGB 
@@ -363,6 +363,7 @@
 	popStack($s0)
 	popStack($t0)
 .end_macro
+
 #Ve duong cheo di xuong tu trai sang phai
 .macro drawlefttorightdiagonal(%x,%y,%length,%color)
 	pushStack($t0)

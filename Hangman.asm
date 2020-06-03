@@ -305,18 +305,7 @@ _GameOver:
 		
 		beq	$v0, 0, LoopHangmanGame
 		j	_Top10Player	
-		
-		ContinueGame:
-			# clear screen
-			addi	$a0, $gp, 1024
-			move	$a1, $gp
-			
-			drawPixel(100, 100, 0x00FF0000)
-				
-			EndClearScreen:
-			j 	LoopHangmanGame
-			
-							
+									
 _DrawPlayerStatus:
 	pushStack($ra)
 	pushStack($t0)
