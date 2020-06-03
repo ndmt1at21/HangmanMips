@@ -14,6 +14,13 @@
 	notiLostGame:		.asciiz		"Ban da bi treo co o_o"
 	notiRightWord:		.asciiz 	"Chinh xac!!! Ban gioi qua ^^"
 	notiWrongChar:		.asciiz		"Ban da doan sai ky tu roi :("
+	dictionary:		.asciiz 	"dictionary.txt"
+	dataPlayer:		.asciiz		"nguoichoi.txt"
+	notiInfor:		.asciiz		"Player's infor\n"
+	notiName:		.asciiz		"Name\t"
+	notiScore:		.asciiz		"Score\t"
+	notiWord:		.asciiz		"Num word\n"
+	
 	hiddenWord:		.space		12
 	guessWord:		.space		12
 	guessChar:		.space		4
@@ -23,17 +30,13 @@
 	playerWord:		.word		0
 	playerStatus:		.word		0
 	
-	allPlayerNameBuff:	.space		528	# 20 bytes / 1 player -> ~ 25 player
-	allPlayerNamePtr:	.space		112	# ptr contains address string name player
-	allPlayerScore:		.space		112	# 25 player * 4 bytes
-	allPlayerWord:		.space		112	# 25 plyer * 1 bytes
+	allPlayerNameBuffPtr:	.word		0
+	allPlayerNamePtr:	.word		0	# ptr contains address string name player
+	allPlayerScorePtr:	.word		0	# 25 player * 4 bytes
+	allPlayerWordPtr:	.word		0	# 25 plyer * 1 bytes
 	numWordDictionary:	.word		0
-	numPlayer:		.byte		0
-	dictionary:		.asciiz 	"dictionary.txt"
-	dataPlayer:		.asciiz		"nguoichoi.txt"
-	notiName:		.asciiz		"Name\t"
-	notiScore:		.asciiz		"Score\t"
-	notiWord:		.asciiz		"Num word\n"
+	numPlayer:		.word		0
+	
 .text
 main:
 	# intro game
@@ -146,7 +149,7 @@ _CheckGuessWord:
 		sw	$a0, playerScore
 		
 		# inc num right word
-		lb	$a0, playerWord
+		lw	$a0, playerWord
 		addi	$a0, $a0, 1
 		sb	$a0, playerWord
 		
@@ -194,7 +197,8 @@ _GameOver:
 		showMsgBox($a0, 0)
 		
 		# show infor player
-		printConstString(" Player's infor\n")
+		la	$a0, notiInfor
+		printString($a0)
 		la	$a0, notiName
 		la	$a1, notiScore
 		la	$a2, notiWord
@@ -215,6 +219,7 @@ _GameOver:
 		# reset para
 		sb	$zero, playerStatus
 		sw	$zero, playerScore
+		sw	$zero, playerWord
 		
 		# ask continue
 		la	$a0, askStatusGame
@@ -340,13 +345,46 @@ _DrawPlayerStatus:
 	jr	$ra
 	
 _Top10Player:
+	# get number player
+	li	$s0, 0
+	la	$a0, tempStr
+	LoopCountPlayer:
+		getline($s0, $a0, '*', dataPlayer)
+		beq	$v0, -1, EndLoopCountPlayer
+		addi	$s0, $s0, 1
+		j	LoopCountPlayer
+	EndLoopCountPlayer:
+	sw	$s0, numPlayer
+	
+	# dynamic allocation
+	li	$gp, 0x10040000 # heap
+	lw	$s0, numPlayer
+	
+	# player's name
+	mul	$t0, $s0, 24   # each name len = 20 (1 null)
+	sw	$gp, allPlayerNameBuffPtr
+	add	$gp, $gp, $t0
+
+	# score
+	mul	$t0, $s0, 4 # 1 score = 1 word = 4 bytes
+	sw	$gp, allPlayerScorePtr
+	add	$gp, $gp, $t0
+	
+	# ptr name
+	sw	$gp, allPlayerNamePtr
+	add	$gp, $gp, $t0
+
+	# num word
+	sw	$gp, allPlayerWordPtr
+	add	$gp, $gp, $t0
+
 	# load data
 	li	$s1, 0
 	la	$a0, tempStr
-	la	$a1, allPlayerNameBuff
-	la	$a2, allPlayerScore
-	la	$a3, allPlayerWord
-	la	$s0, allPlayerNamePtr
+	lw	$a1, allPlayerNamePtr
+	lw	$a2, allPlayerScorePtr
+	lw	$a3, allPlayerWordPtr
+	lw	$s0, allPlayerNameBuffPtr
 	
 	# read from file
 	LoopReadDataPlayer:
@@ -355,16 +393,16 @@ _Top10Player:
 		beq	$v0, -1, EndLoopReadDataPlayer
 		
 		# get name player
-		getstr($a1, $a0, '-', 0)
-		sw	$a1, ($s0)
-		printString($a0)
-		addi	$a1, $a1, 21
-		addi	$s0, $s0, 4
+		getstr($s0, $a0, '-', 0)
+		sw	$s0, ($a1)
+		addi	$s0, $s0, 24
+		addi	$a1, $a1, 4
 		
 		# get score
 		getstr($a2, $a0, '-', 1)
 		toInt($a2)
 		sw	$v0, ($a2)
+		lw	$s3, ($a2)
 		addi	$a2, $a2, 4
 		
 		# get num word
@@ -376,24 +414,24 @@ _Top10Player:
 		# inc number player
 		addi	$s1, $s1, 1
 	
-		# condition loop
-		beq	$zero, $zero, LoopReadDataPlayer
+		# loop
+		j	LoopReadDataPlayer
 		
 	EndLoopReadDataPlayer:
-		sb	$s1, numPlayer
 	
 	# sort 
-	la	$a0, allPlayerNamePtr
-	la	$a1, allPlayerScore
-	la	$a2, allPlayerWord
-	
+	lw	$a0, allPlayerNamePtr
+	lw	$a1, allPlayerScorePtr
+	lw	$a2, allPlayerWordPtr
+
+
 	li	$t0, 0 # i
 	li	$t1, 0 # j
 	li	$t2, 0 # max_index
-	lb	$t3, numPlayer
+	lw	$t3, numPlayer
 	li	$t4, 0 # address arr[j]
 	li	$t5, 0 # address arr[min_index]
-	li	$t6, 4 # for x4
+	li	$t6, 4
 	li	$s0, 0
 	li	$s1, 0
 	li	$s2, 0
@@ -414,7 +452,7 @@ _Top10Player:
 			mult	$t2, $t6
 			mflo	$t5
 			
-			# compare and change min_index
+			# compare and change max_index
 			add	$a1, $a1, $t4
 			lw	$s0, ($a1)
 			sub	$a1, $a1, $t4
@@ -434,19 +472,16 @@ _Top10Player:
 				
 			beq	$zero, $zero, LoopForJ
 		EndLoopForJ:
-
-		# swap
-		mult	$t2, $t6
-		mflo	$t4
 		
-		mult	$t0, $t6
-		mflo	$t5
+		# swap
+		mul	$t4, $t2, 4
+		mul	$t5, $t0, 4
 		
 		# swap name
 		add	$a0, $a0, $t4
 		lw	$s0, ($a0)
 		sub	$a0, $a0, $t4
-		
+	
 		add	$a0, $a0, $t5
 		lw	$s1, ($a0)
 		sub	$a0, $a0, $t5
@@ -517,11 +552,10 @@ _Top10Player:
 	
 	# print top 10 player
 	li	$t0, 0
-	lb	$t1, numPlayer
-	la	$a0, allPlayerNamePtr
-	la	$a1, allPlayerScore
-	la	$a2, allPlayerWord
-	
+	lw	$t1, numPlayer
+	lw	$a0, allPlayerNamePtr
+	lw	$a1, allPlayerScorePtr
+	lw	$a2, allPlayerWordPtr
 	bgt	$t1, 10, Assign10
 	j 	LoopPrintTop10
 	
@@ -552,3 +586,6 @@ _Top10Player:
 		
 		# condition loop
 		blt	$t0, $t1, LoopPrintTop10
+		
+	li	$sp, 0x10040000 # reset heap
+	

@@ -91,7 +91,6 @@
 	li   $v0, 16       # system call for close file
 	move $a0, $s7      # file descriptor to close
 	syscall            # close file
-	
 	move $v0, $t0
 	
 	popStack($a2)	
